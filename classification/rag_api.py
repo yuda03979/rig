@@ -66,5 +66,5 @@ class RagApi:
             ]
 
         [type_names_result_list.append(('None', -float('inf'))) for i in range(len_response)]
-
+        # print(type_names_result_list[:len_response])
         return type_names_result_list[:len_response]

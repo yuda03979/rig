@@ -46,7 +46,5 @@ class Globals:
             ]
         }
 
+
 GLOBALS = Globals()
-
-
-

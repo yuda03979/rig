@@ -5,14 +5,14 @@ from pydantic import BaseModel
 import ollama
 from .funcs import *
 from .utils import *
-from .core._types import Options
-
+from .params import Params
 from .globals import GLOBALS
 
 
 class Role(Enum):
-    USER = 1
-    ASSISTANT = 2
+    USER = -1
+    ASSISTANT = 0
+    SYSTEM = 'a'
 
 
 ###########################
@@ -22,40 +22,11 @@ class TemplateModel:
     def __init__(
             self,
             model_name,
-            docker=False,
-            suffix: str = '',
-            *,
-            system: str = '',
-            template: str = '',
-            context: Optional[Sequence[int]] = None,
-            stream: Literal[True] = True,
-            raw: bool = False,
-            format: Optional[Union[Literal['', 'json'], JsonSchemaValue]] = None,
-            images: Optional[Sequence[Union[str, bytes]]] = None,
-            options: Optional[Union[Mapping[str, Any], Options]] = None,
-            keep_alive: Optional[Union[float, str]] = None,
     ):
-        """
-         see https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values for details
-        """
+
+        self.params = Params()
         self.model_name = model_name
         self.logs = []
-
-        self.docker = docker
-        self.suffix: suffix
-        self.system = system
-        self.template = template
-        self.context = context
-        self.stream = stream
-        self.raw = raw
-        self.format = format
-        self.images = images
-        self.options = options
-        self.keep_alive = keep_alive
-
-    def init_ollama(self):
-        """for the docker if needed. maybe do not need this"""
-        pass
 
     def _manage_logs(self, response):
         if len(self.logs) >= GLOBALS.len_logs:
@@ -84,9 +55,28 @@ class TemplateModel:
         return response['embeddings']
 
     def generate(self, query):
-        response = ollama.generate(model=self.model_name, prompt=query)
+        response = ollama.generate(
+            model=self.model_name,
+            prompt=query,
+            suffix=self.params.suffix,
+            system=self.params.system,
+            template=self.params.template,
+            context=self.params.context,
+            raw=self.params.raw,
+            format=self.params.format,
+            keep_alive=self.params.keep_alive,
+            options=self.params.options.__dict__
+        )
         self._manage_logs(response)
         return response['response']
+
+    def update_params(self, other: Union[dict, Params]):
+        if isinstance(other, Params):
+            self.params = other
+        else:
+            for key, value in other.items():
+                if hasattr(self.params, key):
+                    setattr(self.params, key, value)
 
     def infer(self, query):
         # overwrite
@@ -94,6 +84,15 @@ class TemplateModel:
 
     def __lshift__(self, query):
         return self.infer(query)
+
+    def __le__(self, other: Union[dict, Params]):
+        self.update_params(other)
+        return True
+
+    def stop(self):
+        self.params.keep_alive = 0
+        self.infer("generate: i'm dying!!")
+        return True
 
 
 ############################

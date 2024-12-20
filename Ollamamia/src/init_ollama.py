@@ -1,3 +1,5 @@
+import os
+import time
 from docker import DockerClient
 from docker.errors import DockerException, NotFound, ImageNotFound, APIError
 import subprocess
@@ -70,6 +72,8 @@ class InitOllama:
             self.logger.error(f"Failed to start Ollama: {e}")
             raise
 
+
+
     def stop(self) -> None:
         if self.on_docker:
             try:
@@ -82,16 +86,15 @@ class InitOllama:
                 self.logger.error(f"Failed to stop container: {e}")
                 raise
         else:
-            try:
-                subprocess.run(
-                    ["pkill", "ollama"],
-                    check=True,
-                    capture_output=True
-                )
-                self.logger.info("Stopped local Ollama instance")
-            except subprocess.SubprocessError as e:
-                self.logger.error(f"Failed to stop local instance: {e}")
-                raise
+            if hasattr(self, '_ollama_process'):
+                try:
+                    self._ollama_process.terminate()
+                    self._ollama_process.wait(timeout=5)  # Wait up to 5 seconds
+                except (subprocess.TimeoutExpired, ProcessLookupError):
+                    if os.name == 'nt':  # Windows
+                        subprocess.run(['taskkill', '/F', '/T', '/PID', str(self._ollama_process.pid)])
+                    else:  # Unix
+                        self._ollama_process.kill()
 
     def is_running(self) -> bool:
         if self.on_docker:

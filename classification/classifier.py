@@ -12,23 +12,23 @@ class Classifier:
 
     def predict(self, query) -> tuple[Any, int, bool]:
 
-        # # using regex
-        # type_names, succeed = self.find_rule_name_in_query(query)
-        # if succeed:
-        #     return type_names[0], -1, False
-
         # using rag:
         type_names_list, succeed = self.using_rag(query)
         if succeed:
             return type_names_list[0][0], type_names_list[0][1], False
 
-        # using llm
-        type_name, succeed = self.ask_model(query, type_names_list)
-        if succeed:
-            return type_name, -2, False
+        # # using regex
+        # type_names, succeed = self.find_rule_name_in_query(query)
+        # if succeed:
+        #     return type_names[0], -1, False
+        #
+        # # using llm
+        # type_name, succeed = self.ask_model(query, type_names_list)
+        # if succeed:
+        #     return type_name, -2, False
 
         # failed
-        return type_name, -3, True
+        return "null", -3, True
 
     def find_rule_name_in_query(self, query) -> tuple[list[Any], bool]:
         """
