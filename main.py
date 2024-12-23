@@ -7,13 +7,8 @@ app = FastAPI()
 rig = RIG()
 
 
-@app.post("/load_ollamamia")
-def load_ollamamia():
-    return rig.load_ollamamia()
-
-
-@app.get("/is_ollamamia_docker_running")
-def is_ollamamia_running():
+@app.get("/is_llama_running")
+def is_llama_running():
     return rig.is_ollamamia_running()
 
 

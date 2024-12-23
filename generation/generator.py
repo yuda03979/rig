@@ -1,7 +1,7 @@
 from globals_dir.api import API
 from globals_dir.models import MODELS
 from .prompts import prompt_json_gemma_v6
-from prompt_examples import PromptExamples
+from .prompt_examples import PromptExamples
 
 
 class Generator:

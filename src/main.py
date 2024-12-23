@@ -10,21 +10,11 @@ from globals_dir.utils import handle_errors
 import time
 from datetime import datetime
 
-GLOBALS.init()
-MODELS.init()
 
 class RIG:
 
     def __init__(self, ):
         self.get_rule_instance = GetRuleInstance()
-
-
-    def load_ollamamia(self):
-        # to do! raise an error.
-        GLOBALS.init()
-        MODELS.init()
-        return True
-
 
     def add_rule_types(self):
         try:
@@ -33,8 +23,8 @@ class RIG:
         except:
             return False
 
-    def is_ollamamia_running(self):
-        return GLOBALS.ollamamia.is_running()
+    def is_running(self):
+        pass
 
     def stop(self):
         GLOBALS.ollamamia.stop()

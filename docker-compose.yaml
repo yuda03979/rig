@@ -23,12 +23,14 @@ services:
     container_name: ollama_rig_v2
     ports:
       - "11434:11434"  # Expose Ollama API (adjust port if needed)
-#    volumes:
-#      # Add volume mounts if Ollama requires persistent storage or model files
-#      - ${OLLAMA_MODEL_PATH}:${OLLAMA_MODEL_PATH}
+    volumes:
+      # Add volume mounts if Ollama requires persistent storage or model files
+      - ollama_data:/root/.ollama
     networks:
       - rig_v2_network  # Shared network for inter-service communication
 
 networks:
   rig_v2_network:
     driver: bridge
+volumes:
+  ollama_data:

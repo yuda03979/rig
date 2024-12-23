@@ -20,7 +20,7 @@ class InitOllama:
         if on_docker:
             try:
                 self.client = DockerClient.from_env()
-                self._setup_docker_instance()
+                # self._setup_docker_instance()
             except DockerException as e:
                 self.logger.error(f"Failed to initialize Docker client: {e}")
                 raise
