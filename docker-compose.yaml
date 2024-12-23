@@ -1,0 +1,34 @@
+services:
+  program:
+    build:
+      context: .
+    container_name: rig_v2
+    ports:
+      - "8000:8000"  # Map host port 8080 to container port 80
+    volumes:
+      - ${PROJECT_DIRECTORY}:${PROJECT_DIRECTORY}
+#      - ${GPT_MODEL_PATH}:${GPT_MODEL_PATH}
+#      - ${RAG_MODEL_PATH}:${RAG_MODEL_PATH}
+      - ${RULE_TYPES_DIRECTORY}:${RULE_TYPES_DIRECTORY}
+    env_file:
+      - .env
+    user: root
+    depends_on:
+      - ollama  # Ensure Ollama starts before this service
+    networks:
+      - rig_v2_network
+
+  ollama:
+    image: ollama/ollama  # Replace with the actual Ollama Docker image name
+    container_name: ollama_rig_v2
+    ports:
+      - "11434:11434"  # Expose Ollama API (adjust port if needed)
+#    volumes:
+#      # Add volume mounts if Ollama requires persistent storage or model files
+#      - ${OLLAMA_MODEL_PATH}:${OLLAMA_MODEL_PATH}
+    networks:
+      - rig_v2_network  # Shared network for inter-service communication
+
+networks:
+  rig_v2_network:
+    driver: bridge

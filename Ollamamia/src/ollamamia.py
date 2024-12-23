@@ -10,7 +10,7 @@ class Ollamamia(InitOllama):
         super().__init__(on_docker=on_docker)
         self.funcs = Funcs()
         self.model = Model()
-        self.params = Params
+        self.params = Params()
 
     def ChitChat(self, model_name, prompt=None):
         ChitChat(model_name, prompt)

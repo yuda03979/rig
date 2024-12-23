@@ -90,25 +90,21 @@ class NewType:
         }
         return rule_instance
 
-    def create_embedding(self, type_name, schema) -> str:
-        embedding_words = f"rule type name: {type_name}\nschema: {schema}"
-        embedding = API.rag_api.get_embedding(embedding_words)
-        API.rag_api.add_rule_type_embedding(type_name, embedding)
-        return embedding
-
 
 class AddRuleTypes:
     def __init__(self, folder: str):
+        if folder == "":
+            return
         self.df = pd.DataFrame()
 
         for file_name in os.listdir(folder):
             if file_name.endswith(".json"):
                 new_data = NewType().add(os.path.join(folder, file_name))
-                self.df = pd.concat([self.df, pd.DataFrame([new_data])],  ignore_index=True)
+                self.df = pd.concat([self.df, pd.DataFrame([new_data])], ignore_index=True)
 
         # Create embeddings for all rows at once
         self.df["embedding"] = self.create_embeddings()
-        API.db_api.set_df(self.df)
+        API.db_api_rule_types.set_df(self.df)
 
     def create_embeddings(self) -> list:
         # Combine all rows into a list of embedding texts
@@ -118,5 +114,5 @@ class AddRuleTypes:
         ]
 
         # Generate embeddings for all rows at once
-        embeddings = API.rag_api.get_batch_embeddings(embedding_words)  # Assuming batch processing is supported
+        embeddings = API.rag_api_classification.get_batch_embeddings(embedding_words)  # Assuming batch processing is supported
         return embeddings

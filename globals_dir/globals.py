@@ -1,6 +1,6 @@
 import os
 import logging
-
+from Ollamamia import Ollamamia
 from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
@@ -46,5 +46,23 @@ class Globals:
             ]
         }
 
+        self.db_examples = {
+            "db_path": str(os.path.join(self.project_directory, "db_examples.csv")),
+            "columns_names": [
+                "free_text",
+                "type_name",
+                "schema",
+                "description",
+                "expected",
+                "embedding"
+            ]
+        }
+
+        self.ollamamia = None
+
+    def init(self):
+        self.ollamamia = Ollamamia(on_docker=False)
+
 
 GLOBALS = Globals()
+GLOBALS.init()

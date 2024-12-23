@@ -2,7 +2,6 @@ from enum import Enum
 from typing import Union, Sequence, Optional, Literal, Mapping, Any
 from pydantic.json_schema import JsonSchemaValue
 from pydantic import BaseModel
-import ollama
 from .funcs import *
 from .utils import *
 from .params import Params
@@ -35,13 +34,13 @@ class TemplateModel:
 
     def chat_stream(self, messages: list[dict]):
         response = ''
-        for part in ollama.chat(self.model_name, messages=messages, stream=True):
+        for part in GLOBALS.client.chat(self.model_name, messages=messages, stream=True):
             response += part['message']['content']
             print(part['message']['content'], end='', flush=True)
         return response
 
     def chat(self, messages: list[dict]):
-        response = ollama.chat(
+        response = GLOBALS.client.chat(
             model=self.model_name,
             messages=messages
         )
@@ -50,12 +49,12 @@ class TemplateModel:
         return response.message.content
 
     def embed(self, query: Union[str, Sequence[str]]):
-        response = ollama.embed(model=self.model_name, input=query)
+        response = GLOBALS.client.embed(model=self.model_name, input=query)
         self._manage_logs(response)
         return response['embeddings']
 
     def generate(self, query):
-        response = ollama.generate(
+        response = GLOBALS.client.generate(
             model=self.model_name,
             prompt=query,
             suffix=self.params.suffix,
