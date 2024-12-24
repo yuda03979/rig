@@ -3,16 +3,13 @@ from ollama import ListResponse
 from tqdm import tqdm
 
 
-class Funcs:
-
-    def __init__(self):
-        self.models_dir = ""
+class InstantiateModels:
 
     def change_models_dir(self, _to):
         # move all the old models to the new dir
         pass
 
-    def ls(self, details=True, log=False) -> list:
+    def ps(self, details=True, log=False) -> list:
         response: ListResponse = ollama.list()
         models_info = []
         for model_object in response.models:
@@ -55,21 +52,11 @@ class Funcs:
         current_digest = digest
         return True
 
-    def add(self, model_name, _from, modelfile=None) -> bool:
-        if model_name not in self.ls(details=False, log=False):
+    def create(self, model_name, local_path, modelfile="") -> bool:
+        if model_name not in self.ps(details=False, log=False):
             return False
-        modelfile = f"""
-        FROM {_from}
-        """
-        example_modelfile = f"""
-        FROM {model_name}
-        PARAMETER temperature 0.1
-        PARAMETER num_ctx 1536
-        SYSTEM You are helpful assistant.
-        """
-
-        if not modelfile:
-            modelfile = example_modelfile
+        if modelfile == "":
+            modelfile = None
 
         for response in ollama.create(model=model_name, modelfile=modelfile, stream=True):
             print(response['status'])

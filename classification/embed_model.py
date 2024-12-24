@@ -6,10 +6,5 @@ class EmbedModel:
     def __init__(self):
         # to do! to init the model from local
         self.model_name = GLOBALS.embed_model_path
-        self.params = GLOBALS.ollamamia.params
-        self.params.keep_alive = -1
+        self.config = GLOBALS.ollamamia.model_config
 
-    def init(self):
-        model = GLOBALS.ollamamia.model.embed(model_name=self.model_name)
-        model.update_params(self.params)
-        return model

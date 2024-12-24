@@ -1,11 +1,7 @@
 from enum import Enum
-from typing import Union, Sequence, Optional, Literal, Mapping, Any
-from pydantic.json_schema import JsonSchemaValue
-from pydantic import BaseModel
-from .funcs import *
-from .utils import *
-from .params import Params
-from .globals import GLOBALS
+from typing import Union, Sequence, Literal
+from .model_config import ModelConfig
+from Ollamamia.src.globals_dir.globals import GLOBALS
 
 
 class Role(Enum):
@@ -16,15 +12,14 @@ class Role(Enum):
 
 ###########################
 
-class TemplateModel:
+class BaseModel:
 
     def __init__(
             self,
             model_name,
     ):
 
-        self.params = Params()
-        self.model_name = model_name
+        self.config = ModelConfig(model_name)
         self.logs = []
 
     def _manage_logs(self, response):
@@ -34,14 +29,14 @@ class TemplateModel:
 
     def chat_stream(self, messages: list[dict]):
         response = ''
-        for part in GLOBALS.client.chat(self.model_name, messages=messages, stream=True):
+        for part in self.config.client.chat(self.config.model_name, messages=messages, stream=True):
             response += part['message']['content']
             print(part['message']['content'], end='', flush=True)
         return response
 
     def chat(self, messages: list[dict]):
-        response = GLOBALS.client.chat(
-            model=self.model_name,
+        response = self.config.client.chat(
+            model=self.config.model_name,
             messages=messages
         )
 
@@ -49,33 +44,33 @@ class TemplateModel:
         return response.message.content
 
     def embed(self, query: Union[str, Sequence[str]]):
-        response = GLOBALS.client.embed(model=self.model_name, input=query)
+        response = self.config.client.embed(model=self.config.model_name, input=query)
         self._manage_logs(response)
         return response['embeddings']
 
     def generate(self, query):
-        response = GLOBALS.client.generate(
-            model=self.model_name,
+        response = self.config.client.generate(
+            model=self.config.model_name,
             prompt=query,
-            suffix=self.params.suffix,
-            system=self.params.system,
-            template=self.params.template,
-            context=self.params.context,
-            raw=self.params.raw,
-            format=self.params.format,
-            keep_alive=self.params.keep_alive,
-            options=self.params.options.__dict__
+            suffix=self.config.suffix,
+            system=self.config.system,
+            template=self.config.template,
+            context=self.config.context,
+            raw=self.config.raw,
+            format=self.config.format,
+            keep_alive=self.config.keep_alive,
+            options=self.config.options.__dict__
         )
         self._manage_logs(response)
         return response['response']
 
-    def update_params(self, other: Union[dict, Params]):
-        if isinstance(other, Params):
-            self.params = other
+    def update_params(self, other: Union[dict, ModelConfig]):
+        if isinstance(other, ModelConfig):
+            self.config = other
         else:
             for key, value in other.items():
-                if hasattr(self.params, key):
-                    setattr(self.params, key, value)
+                if hasattr(self.config, key):
+                    setattr(self.config, key, value)
 
     def infer(self, query):
         # overwrite
@@ -84,19 +79,20 @@ class TemplateModel:
     def __lshift__(self, query):
         return self.infer(query)
 
-    def __le__(self, other: Union[dict, Params]):
+    def __le__(self, other: Union[dict, ModelConfig]):
         self.update_params(other)
         return True
 
     def stop(self):
-        self.params.keep_alive = 0
+        self.config.keep_alive = 0
         self.infer("generate: i'm dying!!")
         return True
 
 
 ############################
 
-class Chat(TemplateModel):
+
+class Chat(BaseModel):
 
     def __init__(self, model_name, prompt=None):
         super().__init__(model_name)
@@ -124,7 +120,7 @@ class Chat(TemplateModel):
 
 ############################
 
-class Embed(TemplateModel):
+class Embed(BaseModel):
 
     def __init__(self, model_name, prefix=None):
         super().__init__(model_name)
@@ -137,7 +133,7 @@ class Embed(TemplateModel):
 
 ###############################
 
-class Generate(TemplateModel):
+class Generate(BaseModel):
 
     def __init__(
             self,
@@ -149,16 +145,16 @@ class Generate(TemplateModel):
         return self.generate(query)
 
 
-class Model:
+def Model(model_name, task: Literal[tuple(GLOBALS.available_tasks)]):
+    match task:
+        case "null":  # "null"
+            raise ValueError("Task cannot be 'null'")
+        case "chat":
+            return Chat(model_name)
+        case "generate":
+            return Generate(model_name)
+        case "embed":
+            return Embed(model_name)
+        case _:
+            raise ValueError(f"Unsupported task: {task}")
 
-    def __init__(self):
-        pass
-
-    def chat(self, model_name):
-        return Chat(model_name)
-
-    def generate(self, model_name):
-        return Generate(model_name)
-
-    def embed(self, model_name):
-        return Embed(model_name)

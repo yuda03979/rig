@@ -9,10 +9,15 @@ class RagApi:
     def __init__(self, db_api, text_to_find="type_name"):
         #  to do!! the db dont update!!!!!
         self.db_api = db_api
-
+        self.text_to_find = text_to_find
         self.text_embedding: np.array
         self.text: list
         self.text, self.text_embedding = self.init_text_embeddings(text_to_find)
+
+    def add_to_text_embedding(self, text, new_embedding):
+        self.text.append(text)
+        print(self.text_embedding, new_embedding)
+        self.text_embedding = np.vstack([self.text_embedding, new_embedding])
 
     def init_text_embeddings(self, text_to_find="type_name"):
         text: list = self.db_api.get_col(text_to_find)
@@ -21,13 +26,13 @@ class RagApi:
 
     def get_embedding(self, query: str, prefix_doc: str = prefix_document):
         query = prefix_doc + query
-        embedding = MODELS.embed_model << query  # inference
-        return embedding
+        embedding = MODELS.ollamamia[MODELS.rag_model] << query  # inference
+        return np.array(embedding)
 
     def get_batch_embeddings(self, list_querys: list[str], prefix_doc: str = prefix_document):
         list_querys = [prefix_doc + query for query in list_querys]
         embeddings = MODELS.embed_model << list_querys
-        return embeddings
+        return np.array(embeddings)
 
     def get_closest_type_name(
             self, query: str,
@@ -45,11 +50,15 @@ class RagApi:
         :return: list in shape [(type_name, similarity), ...] with length of len_response.
         """
         query = prefix_query + query
-        query_embedding = MODELS.embed_model << query
+        query_embedding = MODELS.ollamamia[MODELS.rag_model] << query
         type_names_result_list = []
 
         if len(self.text) < 1:
-            handle_errors(e="no rule types provided")
+            if self.text_to_find == "type_name":
+                handle_errors(e="no rule types provided")
+            else:
+                print("rag_api:get_closest_type_name(): the text samples < 1")
+
 
         elif len(self.text) == 1:
             array_similarity = cosine_similarity(query_embedding, self.text_embedding)
@@ -71,6 +80,3 @@ class RagApi:
         # print(type_names_result_list[:len_response])
         return type_names_result_list[:len_response]
 
-    def update(self):
-        # to do! change that to something more efficient
-        self.__init__(self.db_api)

@@ -72,7 +72,7 @@ class RIG:
             response["error_message"] = f"please enter meaningful text"
 
         current_time = datetime.now()
-        response["time"] = f"{current_time.strftime('%Y-%m-%d')}|{current_time.strftime('%H:%M:%S')}"
+        response["time"] = f"{current_time.strftime('%Y-%m-%d')}T{current_time.strftime('%H:%M:%S')}"
         response["inference_time"] = time.time() - start_time
         try:
             response["rag_score"] = response["rag_score"].item()
@@ -99,7 +99,7 @@ class RIG:
         rag_score = rig_response["rag_score"]
 
         if good:
-            embedding = API.rag_api_examples.get_embedding(free_text)
+            embedding = API.rag_api_examples.get_embedding(free_text, prefix_doc="")[0]
             row = {
                 "free_text": free_text,
                 "type_name": type_name,
@@ -109,6 +109,7 @@ class RIG:
                 "embedding": embedding,
             }
             API.db_api_examples.set_row(row_values=row)
+            API.rag_api_examples.add_to_text_embedding(free_text, embedding)
 
         values = {
             "free_text": free_text,

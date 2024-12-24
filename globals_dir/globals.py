@@ -1,6 +1,5 @@
 import os
 import logging
-from Ollamamia import Ollamamia
 from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
@@ -58,10 +57,13 @@ class Globals:
             ]
         }
 
-        self.ollamamia = None
+        self.gemma_modelfile = """<start_of_turn>user
+{{ if .System }}{{ .System }} {{ end }}{{ .Prompt }}<end_of_turn>
+<start_of_turn>model
+{{ .Response }}<end_of_turn>"""
 
     def init(self):
-        self.ollamamia = Ollamamia(on_docker=False)
+        pass
 
 
 GLOBALS = Globals()

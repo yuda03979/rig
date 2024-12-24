@@ -1,9 +1,9 @@
-from typing import Any, Mapping, Optional, Union, Sequence, Literal
-from pydantic.json_schema import JsonSchemaValue
+from typing import Optional, Sequence, Literal
+from Ollamamia.src.globals_dir.globals import GLOBALS
+from .instantiate_model import InstantiateModels
 
 
-class ParamsOptiens:
-
+class ConfigOptiens:
 
     def __init__(self):
         self.numa: Optional[bool] = None
@@ -40,12 +40,19 @@ class ParamsOptiens:
         self.stop: Optional[Sequence[str]] = None
 
 
-class Params:
-    """
-     see https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values for details
-    """
-    def __init__(self):
-        self.options = ParamsOptiens()
+class ModelConfig:
+    """download, activate, and manage all the parameters"""
+
+    def __init__(self, model_name, task="null"):
+        self.pull: bool = False
+        self.local_path: str = ""
+        self.modelfile_content: str = ""
+        self.to: str = ""
+        self.model_name = model_name
+        self.task: Literal[tuple(GLOBALS.available_tasks)] = task
+        self.client = GLOBALS.client
+
+        self.options = ConfigOptiens()
         self.suffix = ''
         self.system = None
         self.template = None
@@ -53,3 +60,20 @@ class Params:
         self.raw = None
         self.format = None
         self.keep_alive = None
+        self.init()
+
+    def init(self):
+        instantiate_model = InstantiateModels()
+        self.verify()
+        if self.to:
+            pass
+        if self.local_path:
+            instantiate_model.create(self.model_name, self.local_path, self.modelfile_content)
+        elif self.pull:
+            instantiate_model.pull(model_name=self.model_name)
+
+
+    def verify(self):
+        # should verify that all the parameters are OK
+        pass
+

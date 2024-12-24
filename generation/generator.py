@@ -13,5 +13,5 @@ class Generator:
         schema = API.db_api_rule_types.get_index((type_name, "schema"))
         description = API.db_api_rule_types.get_index((type_name, "description"))
         examples = self.prompt_examples.get_closest_question(query=free_text, type_name=type_name)
-        response = MODELS.generate_model << prompt_json_gemma_v6(free_text, type_name, schema, description, examples)
+        response = MODELS.ollamamia[MODELS.gemma_model] << prompt_json_gemma_v6(free_text, type_name, schema, description, examples)
         return response, schema

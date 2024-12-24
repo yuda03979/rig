@@ -1,0 +1,1 @@
+git clone https://huggingface.co/Snowflake/snowflake-arctic-embed-m-long

@@ -1,1 +1,0 @@
-from .src.ollamamia import Ollamamia

@@ -1,36 +1,33 @@
+version: '3.8'
 services:
-  program:
-    build:
-      context: .
-    container_name: rig_v2
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
     ports:
-      - "8000:8000"  # Map host port 8080 to container port 80
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ${MODELS_DIRECTORY}:/root/.ollama/models  # Use env variable
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:11434/" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    container_name: rig_v2
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    ports:
+      - "8000:8000"  # Adjust based on your app's port
     volumes:
       - ${PROJECT_DIRECTORY}:${PROJECT_DIRECTORY}
-#      - ${GPT_MODEL_PATH}:${GPT_MODEL_PATH}
-#      - ${RAG_MODEL_PATH}:${RAG_MODEL_PATH}
+        #      - ${GPT_MODEL_PATH}:${GPT_MODEL_PATH}
+        #      - ${RAG_MODEL_PATH}:${RAG_MODEL_PATH}
       - ${RULE_TYPES_DIRECTORY}:${RULE_TYPES_DIRECTORY}
-    env_file:
-      - .env
-    user: root
-    depends_on:
-      - ollama  # Ensure Ollama starts before this service
-    networks:
-      - rig_v2_network
-
-  ollama:
-    image: ollama/ollama  # Replace with the actual Ollama Docker image name
-    container_name: ollama_rig_v2
-    ports:
-      - "11434:11434"  # Expose Ollama API (adjust port if needed)
-    volumes:
-      # Add volume mounts if Ollama requires persistent storage or model files
-      - ollama_data:/root/.ollama
-    networks:
-      - rig_v2_network  # Shared network for inter-service communication
-
-networks:
-  rig_v2_network:
-    driver: bridge
 volumes:
   ollama_data:

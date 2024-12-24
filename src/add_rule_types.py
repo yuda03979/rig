@@ -5,6 +5,7 @@ import pandas
 import pandas as pd
 
 from globals_dir.api import API
+from classification.rag_api import RagApi
 
 
 class NewType:
@@ -105,6 +106,7 @@ class AddRuleTypes:
         # Create embeddings for all rows at once
         self.df["embedding"] = self.create_embeddings()
         API.db_api_rule_types.set_df(self.df)
+        API.rag_api_classification = RagApi(API.db_api_examples, "free_text")
 
     def create_embeddings(self) -> list:
         # Combine all rows into a list of embedding texts
