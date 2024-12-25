@@ -6,7 +6,6 @@ import time
 import json
 
 
-# Helper function to parse `free_text`
 def parse_free_text(text):
     """Parse `free_text` as a list or wrap it in a list if it's plain text."""
     try:
@@ -20,6 +19,7 @@ def parse_free_text(text):
     except (SyntaxError, ValueError):
         # If parsing fails, wrap the text in a list
         return [text.strip()]
+
 
 
 
@@ -44,9 +44,9 @@ def clean_text(text):
     return ''.join(char.lower() for char in text if char.isalnum())
 
 
-def predict(self, free_text):
+def predict(self, free_text, row_id):
     """Predict rule instance using the self."""
-    model_response = self.get_rule_instance(free_text)
+    model_response = self.get_rule_instance(free_text,row_id,for_eval=True)
     if model_response["is_error"] == True:
         print("error: ", model_response)
         return False, False
@@ -65,9 +65,11 @@ def predict(self, free_text):
 #
 def normalize_empty_value(value):
     """Normalize empty values to a common representation."""
-    if value in [None, '', ' ', " ", "", "null", "None", "none", "empty",0,'0'] + ["int", "Int", "String", "string"]:
+    if value in [None, '', ' ', " ", "", "unknown", "null", "NULL", "None", "no", "none", "empty", "EMPTY", 0, '0'] + [
+        "int", "Int", "String", "string"]:
         return "null"  # Choose a common representation for empty values
     return value
+
 
 def normalize_values(dictionary):
     """Normalize all values in the dictionary."""
@@ -123,7 +125,8 @@ def score_rule_instance_name(expected, response):
 
 
 # Helper function to collect errors for each scoring type
-def collect_error_data(param_name, row_id, expected, response,differences , free_text, correct_type_name, predict_type_name, actual_type_name):
+def collect_error_data(param_name, row_id, expected, response, free_text, differences, correct_type_name,
+                       predict_type_name, actual_type_name):
     """Helper function to create error data entry."""
     return {
         "param_name": param_name,
@@ -137,14 +140,16 @@ def collect_error_data(param_name, row_id, expected, response,differences , free
         "actual_type_name": actual_type_name,
     }
 
+
 def score_binary(expected, response):
     for k, expected_v in expected.items():
         try:
-            if normalize_empty_value(response[k]) != normalize_empty_value(expected_v):
+            if normalize_empty_value(response[k]) != normalize_empty_value(expected_v) and k != "ruleInstanceName":
                 return 0
         except:
             return 0
     return 1
+
 
 def sort_response_by_expected(expected, response):
     """
@@ -157,6 +162,7 @@ def sort_response_by_expected(expected, response):
     sorted_response.update(extra_keys)
     return sorted_response
 
+
 def find_differences(expected, response):
     """
     Find differences between the expected and response dictionaries.
@@ -166,9 +172,6 @@ def find_differences(expected, response):
         "missing_keys": [],
         "extra_keys": []
     }
-    expected = normalize_values(expected)
-    response = normalize_values(response)
-    response = sort_response_by_expected(expected, response)
 
     for key in expected:
         if key in response and expected[key] != response[key]:
@@ -181,18 +184,18 @@ def find_differences(expected, response):
 
 
 
-
 # Evaluation Function
 def evaluate_func(
         self,
-        data_file_path,
+        data_dile_path,
         output_directory,
         start_point=0,
         end_point=2,  # None - all the data
-        sleep_time_each_10=30
+        sleep_time_each_10=30,
+        batch_size=250
 ):
 
-    df_eval = pd.read_csv(data_file_path)
+    df_eval = pd.read_csv(data_dile_path)
     # Parse `excepted_response` and `free_text`
     df_eval["expected_response"] = df_eval["expected_response"].apply(
         ast.literal_eval)  # Convert strings to dictionaries
@@ -204,31 +207,46 @@ def evaluate_func(
         for _, row in df_eval.iterrows()
     ]
 
+    rows = []
     error_df_param_numerical_binary_score = []
     error_df_param_verbal_binary_score = []
     error_df_rule_name_score = []
 
+    # Ensure output directory exists
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
 
-    rows = []
-    for i, (row_id, type_name, expected, free_text_list) in tqdm.tqdm(enumerate(eval_data_generation[start_point:end_point]), total=len(eval_data_generation[start_point:end_point])):
-        print(i)
-        if not i % 10 and i != 0:
+    for i, (row_id, type_name, expected, free_text_list) in tqdm.tqdm(enumerate(eval_data_generation[:2]),
+                                                                      total=len(eval_data_generation[:2])):
+        print(f"Processing row {i + 1}/{len(eval_data_generation)}")
+
+        if not i % 10:
             time.sleep(sleep_time_each_10)
+
         for free_text in free_text_list:
-            # print(free_text)
+            print(f'Processing free_text: {free_text}')
             if not free_text.strip():
                 print("Skipping empty free_text")
                 continue
 
             try:
-                response, rig_response = predict(self, free_text,row_id)
-                # print(i, rig_response)
+                response, rig_response = predict(self,free_text, row_id)
                 if not rig_response:
-                    print('error')
+                    print("Error: rig_response is None")
+
+                else:
+                    print(i, rig_response)
+
+                # Normalize and sort response
                 expected, response = correct_prediction(expected, response)
+                expected = normalize_values(expected)
+                response = normalize_values(response)
                 response = sort_response_by_expected(expected, response)
 
-                # Numerical and segmentation scores
+                # Extract examples from rig_response
+                examples = rig_response.get("examples", {})
+
+                # Calculate scores
                 binary_score_no_rule_instance = score_binary(expected, response)
                 param_numerical_binary_score = score_param_type(expected, response, numerical=True)
                 param_verbal_binary_score = score_param_type(expected, response, numerical=False)
@@ -236,28 +254,30 @@ def evaluate_func(
                 param_verbal_avg_score = score_param_type_avg(expected, response, numerical=False)
                 rule_name_score = score_rule_instance_name(expected, response)
                 binary_score = 1 if rule_name_score and binary_score_no_rule_instance else 0
-                correct_type_name =  int(clean_text(["type_name"]) == clean_text(type_name))
+                correct_type_name = int(clean_text(rig_response["type_name"]) == clean_text(type_name))
 
-
-                # If there is a score mismatch, add the error data to the respective lists
-                differences = 'None'
+                # Handle differences
+                differences = "None"
                 if binary_score == 0:
                     differences = find_differences(expected, response)
                 if param_numerical_binary_score == 0:
                     error_df_param_numerical_binary_score.append(
-                        collect_error_data('param_numerical_binary_score', row_id, expected, response, free_text, differences,correct_type_name,rig_response["type_name"],type_name))
+                        collect_error_data('param_numerical_binary_score', row_id, expected, response, free_text,
+                                           differences, correct_type_name, rig_response["type_name"], type_name))
                 if param_verbal_binary_score == 0:
                     error_df_param_verbal_binary_score.append(
-                        collect_error_data('param_verbal_binary_score', row_id, expected, response, free_text, differences, correct_type_name,rig_response["type_name"],type_name))
+                        collect_error_data('param_verbal_binary_score', row_id, expected, response, free_text,
+                                           differences, correct_type_name, rig_response["type_name"], type_name))
                 if rule_name_score == 0:
                     error_df_rule_name_score.append(
-                        collect_error_data('score_rule_instance_name', row_id, expected, response, free_text, differences, correct_type_name,rig_response["type_name"],type_name))
+                        collect_error_data('score_rule_instance_name', row_id, expected, response, free_text,
+                                           differences, correct_type_name, rig_response["type_name"], type_name))
 
-                # New row with evaluation metrics
+                # Append row
                 new_row = {
-                    "id":row_id,
+                    "id": row_id,
                     "binary_score": binary_score,
-                    "binary_score_no_rule_instance": binary_score_no_rule_instance,  # name
+                    "binary_score_no_rule_instance": binary_score_no_rule_instance,
                     "param_numerical_binary_score": param_numerical_binary_score,
                     "param_verbal_binary_score": param_verbal_binary_score,
                     "param_numerical_avg_score": param_numerical_avg_score,
@@ -267,14 +287,15 @@ def evaluate_func(
                     "response": json.dumps(response, indent=4, ensure_ascii=False),
                     "expected": json.dumps(expected, indent=4, ensure_ascii=False),
                     "free_text": free_text,
-                    "correct_type_name": int(clean_text(rig_response["type_name"]) == clean_text(type_name)),
+                    "examples": examples,
+                    "correct_type_name": correct_type_name,
                     "predict_type_name": rig_response["type_name"],
                     "actual_type_name": type_name,
-
                 }
                 rows.append(new_row)
             except Exception as e:
-                new_row = {
+                print(f"Error processing row {i + 1}, free_text: {free_text}, Error: {e}")
+                rows.append({
                     "id": row_id,
                     "binary_score": 0,
                     "binary_score_no_rule_instance": 0,
@@ -283,21 +304,31 @@ def evaluate_func(
                     "param_numerical_avg_score": 0,
                     "param_verbal_avg_score": 0,
                     "score_rule_instance_name": 0,
-                    "response": 'error',
-                    "expected": json.dumps(expected, indent=4, ensure_ascii=False),                    "free_text": free_text,
-                    "correct_type_name": 0
-                }
-                rows.append(new_row)
+                    "response": "error",
+                    "expected": json.dumps(expected, indent=4, ensure_ascii=False),
+                    "free_text": free_text,
+                    "correct_type_name": 0,
+                })
 
-    # Convert the results into a DataFrame
+        # Write results and calculate accuracy after batch
+        if (i + 1) % batch_size == 0 or (i + 1) == len(eval_data_generation):
+            print(f"Writing results after processing {i + 1} rows...")
+            write_results(rows, error_df_param_numerical_binary_score, error_df_param_verbal_binary_score,
+                          error_df_rule_name_score, output_directory)
+            calculate_and_save_accuracy(rows, output_directory)
+    write_results(rows, error_df_param_numerical_binary_score, error_df_param_verbal_binary_score,
+                  error_df_rule_name_score,output_directory)
+    calculate_and_save_accuracy(rows)
+    return rows
+
+
+# Writing results to CSV files
+def write_results(rows, numerical_errors, verbal_errors, rule_name_errors, output_directory="output"):
     df_results = pd.DataFrame(rows)
+    df_error_param_numerical_binary_score = pd.DataFrame(numerical_errors)
+    df_error_param_verbal_binary_score = pd.DataFrame(verbal_errors)
+    df_error_rule_name_score = pd.DataFrame(rule_name_errors)
 
-    # Create DataFrames for the errors
-    df_error_param_numerical_binary_score = pd.DataFrame(error_df_param_numerical_binary_score)
-    df_error_param_verbal_binary_score = pd.DataFrame(error_df_param_verbal_binary_score)
-    df_error_rule_name_score = pd.DataFrame(error_df_rule_name_score)
-
-    # Return the results and the error DataFrames
     file_path = generate_unique_filename(output_directory, "test_results")
     df_results.to_csv(file_path, index=False)
 
@@ -310,37 +341,22 @@ def evaluate_func(
     file_path = generate_unique_filename(output_directory, "error_rule_name_score")
     df_error_rule_name_score.to_csv(file_path, index=False)
 
-    print("without classification mistakes: ")
-    accuracy_results = calculate_accuracy(df_results[df_results["correct_type_name"] == 1])
-    print("with all the data: ")
-    accuracy_results_2 = calculate_accuracy(df_results)
-    file_path = generate_unique_filename(output_directory, "accuracy_results", 'txt')
-    # Save the accuracy metrics to a text file
 
+# Calculating accuracy and saving it to a text file
+def calculate_and_save_accuracy(rows, output_directory="output"):
+    df_results = pd.DataFrame(rows)
+    accuracy_results = calculate_accuracy(df_results[df_results["correct_type_name"] == 1])
+    accuracy_results_2 = calculate_accuracy(df_results)
+
+    file_path = generate_unique_filename(output_directory, "accuracy_results", 'txt')
     with open(file_path, "w") as file:
-        file.write("Average Accuracy Metrics:\n")
+        file.write("without classification mistakes:\n Average Accuracy Metrics:\n")
         for metric, value in accuracy_results.items():
             file.write(f"{metric}: {value:.2%}\n")
 
-
-# Run the evaluation and collect the results
-def generate_unique_filename(directory, base_name, extension="csv"):
-    """
-    Generate a unique filename by appending a sequential number.
-    """
-    if not os.path.exists(directory):
-        os.makedirs(directory)  # Create the directory if it doesn't exist
-    # Start with no number
-    i = 1
-    while True:
-        filename = f"{base_name}_{i}.{extension}"
-        full_path = os.path.join(directory, filename)
-        if not os.path.exists(full_path):
-            return full_path  # Return the first available filename
-        i += 1
-
-
-
+        file.write("with all the data:\n Average Accuracy Metrics:\n")
+        for metric, value in accuracy_results_2.items():
+            file.write(f"{metric}: {value:.2%}\n")
 
 
 def calculate_accuracy(df):
@@ -366,3 +382,17 @@ def calculate_accuracy(df):
     return accuracy_metrics
 
 
+def generate_unique_filename(directory, base_name, extension="csv"):
+    """
+    Generate a unique filename by appending a sequential number.
+    """
+    if not os.path.exists(directory):
+        os.makedirs(directory)  # Create the directory if it doesn't exist
+    # Start with no number
+    i = 1
+    while True:
+        filename = f"{base_name}_{i}.{extension}"
+        full_path = os.path.join(directory, filename)
+        if not os.path.exists(full_path):
+            return full_path  # Return the first available filename
+        i += 1

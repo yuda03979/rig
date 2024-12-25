@@ -17,33 +17,24 @@ from RIG.rig_evaluate import *
 class RuleInstanceGenerator:
 
     def __init__(self):
-        self.for_eval = GLOBALS.eval
         self.globals = GLOBALS
         MODELS.rag_api = RagApi()
         MODELS.gemma_api = GemmaApi()
         self.models = MODELS
         self.get_instance = Get()
         self.new_type = NewType()
-        self.add_rule_types_from_folder()
 
-    def new_rule_type(self, rule_type) -> bool:
+    def new_rule_type(self, rule_type):
         """
         return True if succeeded, else False
         :param rule_type:
         :return: bool
         """
-        try:
-            self.new_type.add(rule_type)
-            succeeded = True
-        except Exception as e:
-            succeeded = False
-
-        log_interactions({"succeeded": succeeded, "file upload": rule_type})
-
-        return succeeded
+        self.new_type.add(rule_type)
+        log_interactions({"succeeded": True, "file upload": rule_type})
 
 
-    def get_rule_instance(self, free_text: str, row_id = None) -> dict:
+    def get_rule_instance(self, free_text: str, row_id=None, for_eval=False) -> dict:
         """
         Processes user input and returns a response with its validation status.
 
@@ -61,7 +52,7 @@ class RuleInstanceGenerator:
         """
 
         start_time = time.time()
-
+        self.response = None
         response = {
             "rule_instance": None,
             "is_error": True,
@@ -76,7 +67,7 @@ class RuleInstanceGenerator:
 
         if any(char.isalpha() for char in free_text) and len(free_text) > 10:
             try:
-                response = self.get_instance.predict(free_text,row_id,self.for_eval)
+                response = self.get_instance.predict(free_text, row_id, for_eval)
 
             except Exception as e:
                 response["error_message"] = f"Processing failed: {type(e).__name__}, {str(e)}"
@@ -94,8 +85,8 @@ class RuleInstanceGenerator:
         log_interactions(response)
         if not response["is_error"]:
             log_interactions(response)
-            if not self.for_eval:
-                log_question_and_answer(response)
+
+        self.response = response
         return response
 
     def add_rule_types_from_folder(self):
@@ -122,8 +113,10 @@ class RuleInstanceGenerator:
     def get_rule_types_names(self):
         return GLOBALS.db_manager.get_all_types_names()
 
-    def feedback(self, fb: str):
-        log_interactions({"feedback": fb, "time": datetime.now()})
+    def feedback(self, rig_response: dict, good: bool):
+        if good:
+            log_interactions({"feedback": rig_response, "time": datetime.now()})
+            log_question_and_answer(rig_response)
         return "thank you :)"
 
     def evaluate(
@@ -132,7 +125,8 @@ class RuleInstanceGenerator:
         output_directory,
         start_point=0,
         end_point=2,  # None - all the data
-        sleep_time_each_10_iter=30
+        sleep_time_each_10_iter=30,
+        batch_size=250,
     ):
         evaluate_func(
             self,
@@ -140,5 +134,6 @@ class RuleInstanceGenerator:
             output_directory=output_directory,
             start_point=start_point,
             end_point=end_point,  # None - all the data
-            sleep_time_each_10=sleep_time_each_10_iter
+            sleep_time_each_10=sleep_time_each_10_iter,
+            batch_size=batch_size
         )

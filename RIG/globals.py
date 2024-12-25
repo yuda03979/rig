@@ -34,7 +34,6 @@ class Globals:
         self.top_p = validate_numeric(os.getenv("TOP_P"), "TOP_P", float)
         self.max_context_length = validate_numeric(os.getenv("MAX_CONTEXT_LENGTH"), "MAX_CONTEXT_LENGTH", int)
         self.max_new_tokens = validate_numeric(os.getenv("MAX_NEW_TOKENS"), "MAX_NEW_TOKENS", int)
-        self.eval = validate_numeric(os.getenv("EVAL"), "EVAL", bool)
 
         self.db_manager = DBManager(os.path.join(self.project_directory, "db_data.csv"))
 
