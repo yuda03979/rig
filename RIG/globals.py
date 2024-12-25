@@ -27,6 +27,7 @@ class Globals:
     rag_model_name = "snowflake-arctic-embed:137m"
     def __init__(self):
         self.project_directory = validate_path(os.getenv("PROJECT_DIRECTORY"), "PROJECT_DIRECTORY")
+        self.evaluation_directory = validate_path(os.getenv("EVALUATION_DIRECTORY"), "EVALUATION_DIRECTORY")
         self.rule_types_directory = validate_path(os.getenv("RULE_TYPES_DIRECTORY"), "RULE_TYPES_DIRECTORY")
         self.rag_difference = validate_numeric(os.getenv("RAG_DIFFERENCE"), "RAG_DIFFERENCE", float)
         self.rag_threshold = validate_numeric(os.getenv("RAG_THRESHOLD"), "RAG_THRESHOLD", float)
@@ -34,7 +35,7 @@ class Globals:
         self.top_p = validate_numeric(os.getenv("TOP_P"), "TOP_P", float)
         self.max_context_length = validate_numeric(os.getenv("MAX_CONTEXT_LENGTH"), "MAX_CONTEXT_LENGTH", int)
         self.max_new_tokens = validate_numeric(os.getenv("MAX_NEW_TOKENS"), "MAX_NEW_TOKENS", int)
-
+        print("---------------------------------------------------", self.rag_threshold)
         self.db_manager = DBManager(os.path.join(self.project_directory, "db_data.csv"))
 
         self.ollamamia = Ollamamia()
@@ -57,6 +58,7 @@ class Globals:
 
 
 GLOBALS = Globals()
+
 
 class Models:
 

@@ -23,13 +23,13 @@ services:
       - ollama
     environment:
       - OLLAMA_HOST=http://ollama:11434
-      - PROJECT_DIRECTORY=${PROJECT_DIRECTORY}
-      - RULE_TYPES_DIRECTORY=${RULE_TYPES_DIRECTORY}
+      # we move the .env into the docker, and the Globals read it.
     ports:
       - "8000:8000"
     volumes:
       - ${PROJECT_DIRECTORY}:${PROJECT_DIRECTORY}
       - ${RULE_TYPES_DIRECTORY}:${RULE_TYPES_DIRECTORY}
+      - ${EVALUATION_DIRECTORY}:${EVALUATION_DIRECTORY}
     networks:
       - rig_network  # Attach to the same custom network
 

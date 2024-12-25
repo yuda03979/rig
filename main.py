@@ -38,3 +38,21 @@ def feedback(fb):
     return rig.feedback(fb)
 
 
+@app.post("/evaluate")
+def evaluate(
+        start_point=0,
+        end_point=2,  # None - all the data
+        sleep_time_each_10_iter=30,
+        batch_size=250
+):
+    print("evaluate")
+    try:
+        end_point = int(end_point)
+    except:
+        pass
+    return rig.evaluate(
+        start_point=int(start_point),
+        end_point=end_point,  # None - all the data
+        sleep_time_each_10_iter=int(sleep_time_each_10_iter),
+        batch_size=int(batch_size)
+    )

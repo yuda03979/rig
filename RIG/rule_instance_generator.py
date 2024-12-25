@@ -121,8 +121,8 @@ class RuleInstanceGenerator:
 
     def evaluate(
         self,
-        data_file_path,
-        output_directory,
+        data_file_path=os.path.join(GLOBALS.evaluation_directory, "data_yuda.csv"),
+        output_directory=os.path.join(GLOBALS.evaluation_directory, "output"),
         start_point=0,
         end_point=2,  # None - all the data
         sleep_time_each_10_iter=30,
