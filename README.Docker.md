@@ -10,36 +10,18 @@
 
 ## Setup Steps
 
-### 1. Git LFS Configuration
-Initialize Git Large File Storage (LFS):
-```bash
-git lfs install
-```
-or:
-```angular2html
-curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-sudo apt install git-lfs
-```
-
 
 ### 2. Model Downloads (Optional)
 
-#### Gemma Model
-Download the Gemma model:
-```bash
-curl -L -O https://huggingface.co/lmstudio-community/gemma-2-2b-it-GGUF/resolve/main/gemma-2-2b-it-Q8_0.gguf
-```
-
-#### RAG Model
-Clone the BGE-M3 model:
-```bash
-git clone https://huggingface.co/BAAI/bge-m3
+download the rig_models folder from drive 
+```angular2html
+link
 ```
 
 ### 3. Configuration
 
 #### Environment Configuration
-1. Locate the `.env` file
+1. edit the `.env` file
 2. Update paths and settings as required
 3. Ensure all necessary environment variables are set correctly
 

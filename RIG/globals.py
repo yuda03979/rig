@@ -1,5 +1,7 @@
 import os
 import logging
+
+import ollama
 from dotenv import find_dotenv, load_dotenv
 from ollamamia import Ollamamia
 from RIG.src.Utils.db_manager import DBManager
@@ -43,18 +45,26 @@ class Globals:
         # this is the rag_model
         self.rag_model = self.rag_model_name
         rag_model_config = self.ollamamia.model_config(model_name=self.rag_model, task="embed")
-        self.ollamamia[self.rag_model:rag_model_config]
+        rag_model_config.pull = True
+        self.ollamamia[self.rag_model] = rag_model_config
 
         # this is gemma model
         self.gemma_model = self.gemma_model_name
         gemma_model_config = self.ollamamia.model_config(model_name=self.gemma_model, task="generate")
+        gemma_model_config.pull = True
         gemma_model_config.keep_alive = -1
         gemma_model_config.options.stop = ["}"]
         gemma_model_config.options.temperature = 0.1
         gemma_model_config.options.top_p = self.top_p
         gemma_model_config.options.num_ctx = self.max_context_length
         gemma_model_config.options.num_predict = self.max_new_tokens
-        self.ollamamia[self.gemma_model:gemma_model_config]
+        self.ollamamia[self.gemma_model] = gemma_model_config
+
+        try:
+            ollama.pull(self.rag_model_name)
+            ollama.pull(self.gemma_model_name)
+        except:
+            pass
 
 
 GLOBALS = Globals()

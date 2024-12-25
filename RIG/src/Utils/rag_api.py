@@ -21,6 +21,7 @@ class RagApi:
         self.rule_types_embedding[type_name] = embedding
 
     def get_embedding(self, text):
+        text = "classification:\n" + text
         embedding = GLOBALS.ollamamia[GLOBALS.rag_model_name] << text
         embedding_json = json.dumps(embedding[0])
         return embedding_json, embedding
@@ -31,6 +32,7 @@ class RagApi:
         :param query: The free-text
         :return: The closest type_name
         """
+        query = "classification" + query
         query_embedding = GLOBALS.ollamamia[GLOBALS.rag_model_name] << query
         query_embedding = query_embedding[0]
         # Prepare matrix of rule type embeddings
