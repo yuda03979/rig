@@ -1,0 +1,61 @@
+id,binary_score,binary_score_no_rule_instance,param_numerical_binary_score,param_verbal_binary_score,param_numerical_avg_score,param_verbal_avg_score,score_rule_instance_name,response,expected,free_text,correct_type_name
+VultureD1Q1,0,0,0,0,0,0,0,error,"{
+    ""ruleInstanceName"": ""eagle assessment"",
+    ""severity"": ""4"",
+    ""Scavenging efficiency"": ""80"",
+    ""Flight altitude"": ""high"",
+    ""Beak sharpness"": ""7"",
+    ""Vision acuity"": ""excellent"",
+    ""Wing span"": ""200"",
+    ""Thermal riding skill"": ""expert"",
+    ""Bone digestion"": ""90"",
+    ""Feather maintenance"": ""null""
+}","An instance of eagle assessment needs to be created, dealing with the type of assessment eagle. The scavenging efficiency of the eagle was around, um, eighty. However, the beak sharpness was much more severe, let's say something like seven. The flight altitude of the eagle is high, and the severity of the event is four. The vision acuity of the eagle is excellent, with a wingspan of about two hundred. The thermal riding skill of the eagle is expert, and the bone digestion is ninety. We don't have information on the feather maintenance.",0
+VultureD1Q2,0,0,0,0,0,0,0,error,"{
+    ""ruleInstanceName"": ""eagle assessment"",
+    ""severity"": ""4"",
+    ""Scavenging efficiency"": ""80"",
+    ""Flight altitude"": ""high"",
+    ""Beak sharpness"": ""7"",
+    ""Vision acuity"": ""excellent"",
+    ""Wing span"": ""200"",
+    ""Thermal riding skill"": ""expert"",
+    ""Bone digestion"": ""90"",
+    ""Feather maintenance"": ""null""
+}","We need to generate an instance for Eagle Assessment. Our eagle is quite the scavenger, with an efficiency of about eighty. The flight altitude of this bird? High. Its beak sharpness is a solid seven. And you won't believe this, but the vision acuity is excellent! With a wingspan of, um, two hundred, and thermal riding skill of an expert, this bird is a pro. It has a bone digestion of ninety, but the feather maintenance is, well, just not available. The severity of this evaluation, let's say, is four.",0
+VultureD1Q3,0,0,0,0,0,0,0,error,"{
+    ""ruleInstanceName"": ""eagle assessment"",
+    ""severity"": ""4"",
+    ""Scavenging efficiency"": ""80"",
+    ""Flight altitude"": ""high"",
+    ""Beak sharpness"": ""7"",
+    ""Vision acuity"": ""excellent"",
+    ""Wing span"": ""200"",
+    ""Thermal riding skill"": ""expert"",
+    ""Bone digestion"": ""90"",
+    ""Feather maintenance"": ""null""
+}","We need to create an instance of Eagle Assessment. We're dealing with an eagle here, a real majestic one. Their scavenging efficiency is pretty high, like eighty or so. They fly at a high altitude, and their beak sharpness is something like seven. The eagle's vision acuity is excellent, you can't hide from them. The wing span is just immense, around two hundred. Their thermal riding skill is of an expert level, they can soar for hours. Bone digestion is high too, around ninety. As for the feather maintenance, there's no data. The severity of this assessment is four.",0
+VultureD1Q4,0,0,0,0,0,0,0,error,"{
+    ""ruleInstanceName"": ""eagle assessment"",
+    ""severity"": ""4"",
+    ""Scavenging efficiency"": ""80"",
+    ""Flight altitude"": ""high"",
+    ""Beak sharpness"": ""7"",
+    ""Vision acuity"": ""excellent"",
+    ""Wing span"": ""200"",
+    ""Thermal riding skill"": ""expert"",
+    ""Bone digestion"": ""90"",
+    ""Feather maintenance"": ""null""
+}","We gotta set up an instance of the Eagle Assessment pronto. We're looking at a severity of four, so no laughing matter. The scavenging efficiency? Around eighty percent, not too shabby. The flight altitude, you ask? High, as in way up there. The beak sharpness is pretty decent, rating a seven. The vision acuity is excellent - this bird sees everything. Wing span is a solid two hundred, and the thermal riding skill is expert level. Bone digestion is at ninety percent, which is pretty impressive. Feather maintenance, well, we don't have data on that just yet.",0
+VultureD1Q5,0,0,0,0,0,0,0,error,"{
+    ""ruleInstanceName"": ""eagle assessment"",
+    ""severity"": ""4"",
+    ""Scavenging efficiency"": ""80"",
+    ""Flight altitude"": ""high"",
+    ""Beak sharpness"": ""7"",
+    ""Vision acuity"": ""excellent"",
+    ""Wing span"": ""200"",
+    ""Thermal riding skill"": ""expert"",
+    ""Bone digestion"": ""90"",
+    ""Feather maintenance"": ""null""
+}","An instance of Eagle Assessment needs to be carried out, focusing on the ruleInstanceName parameter. The eagle's scavenging efficiency stands at a solid, um, eighty. But the severity of the assessment is a bit higher, let's say something like four. The flight altitude of the eagle is high, and the sharpness of the beak is seven. The vision acuity of the eagle is excellent, with a wingspan reaching two hundred. The thermal riding skill of the eagle is classified as expert. The bone digestion efficiency is around ninety, but the feather maintenance is still a blank slate.",0

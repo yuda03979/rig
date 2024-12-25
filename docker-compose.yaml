@@ -1,33 +1,41 @@
-version: '3.8'
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.5.4
     container_name: ollama
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-      - ${MODELS_DIRECTORY}:/root/.ollama/models  # Use env variable
+      - ${MODELS_DIRECTORY}:/root/.ollama/models
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:11434/" ]
       interval: 5s
       timeout: 3s
       retries: 10
+    networks:
+      - rig_network  # Attach to custom network
 
   app:
     build: .
-    container_name: rig_v2
+    container_name: rig
     depends_on:
       - ollama
     environment:
       - OLLAMA_HOST=http://ollama:11434
+      - PROJECT_DIRECTORY=${PROJECT_DIRECTORY}
+      - RULE_TYPES_DIRECTORY=${RULE_TYPES_DIRECTORY}
     ports:
-      - "8000:8000"  # Adjust based on your app's port
+      - "8000:8000"
     volumes:
       - ${PROJECT_DIRECTORY}:${PROJECT_DIRECTORY}
-        #      - ${GPT_MODEL_PATH}:${GPT_MODEL_PATH}
-        #      - ${RAG_MODEL_PATH}:${RAG_MODEL_PATH}
       - ${RULE_TYPES_DIRECTORY}:${RULE_TYPES_DIRECTORY}
+    networks:
+      - rig_network  # Attach to the same custom network
+
 volumes:
   ollama_data:
+
+networks:
+  rig_network:  # Define the custom network
+    driver: bridge
