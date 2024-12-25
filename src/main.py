@@ -108,7 +108,7 @@ class RIG:
                 "expected": model_response,
                 "embedding": embedding,
             }
-            API.db_api_examples.set_row(row_values=row)
+            # API.db_api_examples.set_row(row_values=row)
             API.rag_api_examples.add_to_text_embedding(free_text, embedding)
 
         values = {

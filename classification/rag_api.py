@@ -5,7 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from .prompts import prefix_document
 
 
-class RagApi:
+class RagRTApi:
     def __init__(self, db_api, text_to_find="type_name"):
         #  to do!! the db dont update!!!!!
         self.db_api = db_api
@@ -79,4 +79,7 @@ class RagApi:
         [type_names_result_list.append(('None', -float('inf'))) for i in range(len_response)]
         # print(type_names_result_list[:len_response])
         return type_names_result_list[:len_response]
+
+
+
 
