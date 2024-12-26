@@ -2,10 +2,19 @@
 
 # Installation
 
+ollama:
+- for linux:
+```angular2html
+curl -fsSL https://ollama.com/install.sh | sh
+```
+- for other os check ollama website.
+-------------
+-------------
+lfs:
 ```angular2html
 git lfs install
 ```
-or:
+- or:
 ```angular2html
 curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
 sudo apt install git-lfs
@@ -21,18 +30,16 @@ rag:
 ```
 git clone https://huggingface.co/BAAI/bge-m3
 ```
-## - steps:
-1. place the data_directory in your desire place.
-2. with your terminal, go to the project folder and run:
-    ```
-   pip install -e .
-   ```
 
-### - notes:
-* to uninstall run: `pip uninstall RIG`
 
 ## how to use:
+on the terminal run
+```angular2html
+ollama serve
+```
 
+and you ready to go:
+- this is python:
 
 ```python
 from RIG.rule_instance_generator import RuleInstanceGenerator
