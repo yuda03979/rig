@@ -12,7 +12,7 @@ class Generation:
 
     def predict(self, type_name, free_text, row_id = None):
         schema = self.db_manager.get_dict_features(type_name=type_name, feature="schema")
-        print(type_name)
+        # print(type_name)
         description = self.db_manager.get_dict_features(type_name=type_name, feature="description")
         examples = self.create_examples.get_closest_question(question = free_text, type_name=type_name, row_id = row_id if row_id else None)
         response = MODELS.gemma_api.predict(prompt=prompt_json_gemma_v5(free_text, type_name, schema, description, examples))

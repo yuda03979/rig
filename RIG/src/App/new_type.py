@@ -88,7 +88,7 @@ class NewType:
         return rule_instance
 
     def create_embedding(self, type_name, schema) -> str:
-        embedding_words = str(schema) + str(type_name)
+        embedding_words = f"rule type name: {type_name}\nschema: {schema}"
         embedding_json, embedding = MODELS.rag_api.get_embedding(str(embedding_words))
         MODELS.rag_api.add_rule_type_embedding(type_name, embedding)
         return str(embedding_json)

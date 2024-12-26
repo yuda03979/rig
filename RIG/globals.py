@@ -8,7 +8,8 @@ from RIG.src.Utils.db_manager import DBManager
 
 
 class Globals:
-    gemma_model_name = "gemma2:2b-instruct-q8_0" #"shieldgemma:2b"#
+    gemma_model_name = ["gemma-2-2b-it-Q8_0", "hermes3:3b", "gemma2:2b-instruct-q8_0", "granite3-dense", "stablelm-zephyr:3b", "dolphin-phi", "internlm2:1.8b"][0]
+    #                   good            ours                        good-
     rag_model_name = "snowflake-arctic-embed:137m"
     def __init__(self):
         load_dotenv(find_dotenv())

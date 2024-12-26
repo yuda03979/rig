@@ -10,47 +10,26 @@ class Classification:
 
     def predict(self, query) -> tuple[Any, int, bool]:
 
-        # # using regex
-        # type_names, succeed = self.find_rule_name_in_query(query)
-        # if succeed:
-        #     return type_names[0], -1, False
-
         # using rag:
         type_names_list, succeed = self.using_rag(query)
         if succeed:
             return type_names_list[0][0], type_names_list[0][1], False
 
         # using llm
-        type_name, succeed = self.ask_model(query, type_names_list)
+        type_name, succeed = self.using_model(query, type_names_list)
         if succeed:
             return type_name, -2, False
 
         # failed
         return type_name, -3, True
 
-    def find_rule_name_in_query(self, query) -> tuple[list[Any], bool]:
-        def clean_text(text):
-            """Remove all non-alphanumeric characters and convert to lowercase."""
-            return ''.join(char.lower() for char in text if char.isalnum())
-
-        rule_names_list = GLOBALS.db_manager.get_all_types_names()
-        results = []
-        for type_name in rule_names_list:
-            if clean_text(type_name) in clean_text(query):
-                results.append(type_name.lower())
-
-        if len(results) == 1:
-            return [results[0]], True
-        else:
-            return results, False
-
     def using_rag(self, query):
         succeed = False
         type_names_list = MODELS.rag_api.get_closest_type_name(query)
         closest_distance = type_names_list[0][1]
         difference = type_names_list[0][1] - type_names_list[1][1]
-        print("difference", difference)
-        print("closest_distance", closest_distance)
+        # print("difference", difference)
+        # print("closest_distance", closest_distance)
         if difference > GLOBALS.rag_difference and difference != float('inf'):  # the case of empty list
             if closest_distance > GLOBALS.rag_threshold:
                 succeed = True
@@ -58,7 +37,7 @@ class Classification:
             succeed = True
         return type_names_list, succeed
 
-    def ask_model(self, query, type_names):
+    def using_model(self, query, type_names):
         schema_a = GLOBALS.db_manager.get_dict_features(type_name=type_names[0][0], feature="schema")
         description_a = GLOBALS.db_manager.get_dict_features(type_name=type_names[0][0], feature="description")
 

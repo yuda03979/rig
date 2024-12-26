@@ -28,7 +28,7 @@ def normalize_empty_value(value):
 
 def correct_numerical_values(schema, model_response):
     for k, v in model_response.items():
-        if schema[k].lower() in ['int', 'int32']:
+        if str(schema.get(k)).lower() in ['int', 'int32']:
             try:
                 model_response[k] = float(v)
                 if int(model_response[k]) == model_response[k]:
