@@ -107,6 +107,15 @@ curl -X POST "http://0.0.0.0:8000/set_rule_types" \
 ```
 
 6. feedback:
-7. evaluate
+```angular2html
+
+```
+7. evaluate:
+```
+curl -X 'POST' \
+  'http://0.0.0.0:8000/evaluate?start_point=0&end_point=2&sleep_time_each_10_iter=30&batch_size=250' \
+  -H 'accept: application/json' \
+  -d ''
+```
 output:
 thank you :)
