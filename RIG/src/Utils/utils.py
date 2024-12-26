@@ -85,16 +85,17 @@ def log_question_and_answer(response):
     if not os.path.exists(log_file):
         with open(log_file, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(["Timestamp", "Question", "Answer", "Embedding","Type_Name"])  # Headers
+            writer.writerow(["row_id", "Timestamp", "Question", "Answer", "Embedding","Type_Name"])  # Headers
     question = response["free_text"]
     answer = response["model_response"]
     type_name = response["type_name"]
+    row_id = response["row_id"] if "row_id" in response else None
     embedding_json, embedding = rag_api.get_embedding(question)
 
     with open(log_file, mode="a", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow([
-            'id',
+            row_id,
             datetime.now().isoformat(),
             question,
             answer,

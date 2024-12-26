@@ -68,12 +68,7 @@ class RuleInstanceGenerator:
         }
 
         if any(char.isalpha() for char in free_text) and len(free_text) > 10:
-            try:
-                response = self.get_instance.predict(free_text, row_id, for_eval)
-
-            except Exception as e:
-                response["error_message"] = f"Processing failed: {type(e).__name__}, {str(e)}"
-
+            response = self.get_instance.predict(free_text, row_id, for_eval)
         else:
             response["error_message"] = f"please enter meaningful text"
 

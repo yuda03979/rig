@@ -21,7 +21,10 @@ class RagApi:
         self.rule_types_embedding[type_name] = embedding
 
     def get_embedding(self, text):
-        text = "classification:\n" + text
+        if isinstance(text, list):
+            text = ["classification:\n" + query for query in text]
+        if isinstance(text, str):
+            text = "classification:\n" + text
         embedding = GLOBALS.ollamamia[GLOBALS.rag_model_name] << text
         embedding_json = json.dumps(embedding[0])
         return embedding_json, embedding
