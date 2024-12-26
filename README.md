@@ -35,23 +35,14 @@ git clone https://huggingface.co/BAAI/bge-m3
 
 
 ```python
-from RIG import RuleInstanceGenerator
+from RIG.rule_instance_generator import RuleInstanceGenerator
 ```
 
 
 ```python
 # (required means that you can chnge it in globlas.py and it will not be required.)
 
-rig = RuleInstanceGenerator(
-    project_directory="",  # required
-    gpt_model_path="", # required
-    rag_model_path="", # required
-    rule_types_directory="", # optional. if you want to load rule-types from directory.
-    rag_threshold=0.5, # oprional
-    max_context_length=1024, # optional
-    max_new_tokens=512, # optional
-    n_threads=5 # optional
-)
+rig = RuleInstanceGenerator()
 ```
 
 
@@ -90,10 +81,6 @@ rig.get_rule_types()
 
 
 ## get rule instance from free text
-
-```angular2html
-rig.init_gemma_model()
-```
 
 
 ```python
@@ -153,11 +140,10 @@ thank you :)
 ## run evaluation:
 ```
 rig.evaluate(
-    data_dile_path="/Users/yuda/Desktop/RIG_v1/evaluation/data/data_yuda.csv",
-    output_directory="/Users/yuda/Desktop/RIG_v1/evaluation/output",
-    start_point = 0,
-    end_point = 1, # None = all the data
-    sleep_time_each_10_iter = 30
+    start_point=0,
+    end_point=2,  # None - all the data
+    sleep_time_each_10_iter=5,
+    batch_size=250
 )
 ```
 
