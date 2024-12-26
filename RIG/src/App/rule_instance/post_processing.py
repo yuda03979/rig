@@ -10,18 +10,18 @@ def post_processing(type_name, model_response):
 
     # inserting into the rule instance
     default_rule_instance = GLOBALS.db_manager.get_dict_features(type_name, 'default_rule_instance')
-    for param in [k for k in model_response.keys() if  # or: default_rule_instance['params'].keys()
+    for param in [k for k in default_rule_instance['params'].keys() if  # or: model_response.keys()
                   k not in ["severity", "ruleInstanceName", "ruleInstanceName".lower()]]:
-        default_rule_instance['params'][param] = model_response[param]
-    for param in [k for k in model_response.keys() if  # or: default_rule_instance['params'].keys()
+        default_rule_instance['params'][param] = model_response.get(param)
+    for param in [k for k in default_rule_instance['params'].keys()if  # or: model_response.keys()
                   k in ["severity", "ruleInstanceName", "ruleInstanceName".lower()]]:
-        default_rule_instance[param] = model_response[param]
+        default_rule_instance[param] = model_response.get(param)
     return default_rule_instance
 
 
 def normalize_empty_value(value):
     """Normalize empty values to a common representation."""
-    if value in [None, '', ' ', " ", "", "null", "None", "none", "empty"] + ["int", "Int", "String", "string"]:
+    if value in [None, '', ' ', " ", "", "null", "None", "none", "empty", "undefined", "nil", "NaN", "nan", "n/a", "N/A", "na", "NA", "missing", "unknown", "void", "blank", ".", "..", "...", "?", "nil"] + ["int", "Int", "String", "string"]:
         return "null"  # Choose a common representation for empty values
     return value
 

@@ -56,9 +56,8 @@ class NewType:
             description[param["name"] + "_description"] = str(param["description"])
         description['ruleInstanceName_description'] = "about what the message and to what it related in the db."
         description['severity_description'] = "level of importance, criticality, or risk."
-        description["event details"] = {}
-        description["event details"]["global description"] = str(rule_type["description"])
-        description["event details"]["object name"] = rule_type["eventDetails"][0]["objectName"]
+        description["global description"] = str(rule_type["description"])
+        description["object name"] = rule_type["eventDetails"][0]["objectName"]
         return description
 
     def create_default_values(self, rule_type) -> dict:
