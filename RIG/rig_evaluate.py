@@ -222,7 +222,7 @@ def evaluate_func(
             time.sleep(sleep_time_each_10)
 
         for free_text in free_text_list:
-            print(f'Processing free_text: {free_text}')
+            # print(f'Processing free_text: {free_text}')
             if not free_text.strip():
                 print("Skipping empty free_text")
                 continue
