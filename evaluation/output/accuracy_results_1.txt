@@ -1,9 +1,0 @@
-Average Accuracy Metrics:
-binary_score: nan%
-binary_score_no_instance_name: nan%
-param_numerical_binary_score: nan%
-param_numerical_avg_score: nan%
-param_verbal_binary_score: nan%
-param_verbal_avg_score: nan%
-score_rule_instance_name: nan%
-classification score: nan%

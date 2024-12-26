@@ -47,31 +47,13 @@ output: ```Docker Compose version v2.29.1```
 ### Local Development
 Navigate to the project directory and run:
 ```bash
-docker compose up --build
+docker compose cuild
+```
+```angular2html
+docker compose run
 ```
 
 The application will be accessible at: http://localhost:8000/docs
-
-## Deployment to Cloud
-
-### Building Docker Image
-
-#### Standard Build
-```bash
-docker build -t myapp .
-```
-
-#### Cross-Platform Build (e.g., Mac M1 to AMD64)
-
-
-```bash
-docker build --platform=linux/amd64 -t myapp .
-```
-
-### Pushing to Registry
-```bash
-docker push myregistry.com/myapp
-```
 
 ## Additional Resources
 - [Docker's Python Guide](https://docs.docker.com/language/python/)
@@ -89,16 +71,7 @@ docker push myregistry.com/myapp
 
 # how to use:
 - functions:
-1. init_gemma_model
-```bash
-  curl -X 'POST' \
-  'http://0.0.0.0:8000/init_gemma_model?max_context_length=1536&max_new_tokens=512&n_threads=8' \
-  -H 'accept: application/json' \
-  -d ''
-```
-output:
-true
-2. get_rule_instance
+1. get_rule_instance
 ```
   curl -X 'POST' \
   'http://0.0.0.0:8000/get_rule_instance?free_text=system%20failure%20severity%205' \
@@ -127,12 +100,13 @@ curl -X 'POST' \
 output:
 true
 
-5. feedback
+5. set_rule_types 
 ```
-curl -X 'POST' \
-  'http://0.0.0.0:8000/feedback?fb=True' \
-  -H 'accept: application/json' \
-  -d ''
+curl -X POST "http://0.0.0.0:8000/set_rule_types" \
+-H "accept: application/json"
 ```
+
+6. feedback:
+7. evaluate
 output:
 thank you :)

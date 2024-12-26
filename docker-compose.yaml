@@ -2,8 +2,6 @@ services:
   ollama:
     image: ollama/ollama:0.5.4
     container_name: ollama
-    ports:
-      - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
       - ${MODELS_DIRECTORY}:/root/.ollama/models
@@ -15,7 +13,6 @@ services:
       retries: 10
     networks:
       - rig_network  # Attach to custom network
-
   app:
     build: .
     container_name: rig
@@ -23,7 +20,15 @@ services:
       - ollama
     environment:
       - OLLAMA_HOST=http://ollama:11434
-      # we move the .env into the docker, and the Globals read it.
+      - PROJECT_DIRECTORY=${PROJECT_DIRECTORY}
+      - RULE_TYPES_DIRECTORY=${RULE_TYPES_DIRECTORY}
+      - EVALUATION_DIRECTORY=${EVALUATION_DIRECTORY}
+      - RAG_DIFFERENCE=${RAG_DIFFERENCE}
+      - RAG_THRESHOLD=${RAG_THRESHOLD}
+      - TEMPERATURE=${TEMPERATURE}
+      - TOP_P=${TOP_P}
+      - MAX_CONTEXT_LENGTH=${MAX_CONTEXT_LENGTH}
+      - MAX_NEW_TOKENS=${MAX_NEW_TOKENS}
     ports:
       - "8000:8000"
     volumes:

@@ -5,6 +5,8 @@ import ast
 import time
 import json
 
+from RIG.src.Utils.utils import log_question_and_answer
+
 
 def parse_free_text(text):
     """Parse `free_text` as a list or wrap it in a list if it's plain text."""
@@ -216,8 +218,8 @@ def evaluate_func(
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    for i, (row_id, type_name, expected, free_text_list) in tqdm.tqdm(enumerate(eval_data_generation[:2]),
-                                                                      total=len(eval_data_generation[:2])):
+    for i, (row_id, type_name, expected, free_text_list) in tqdm.tqdm(enumerate(eval_data_generation[start_point:end_point]),
+                                                                      total=len(eval_data_generation[start_point:end_point])):
         print(f"Processing row {i + 1}/{len(eval_data_generation)}")
 
         if not i % 10:
@@ -230,7 +232,7 @@ def evaluate_func(
                 continue
 
             try:
-                response, rig_response = predict(self,free_text, row_id)
+                response, rig_response = predict(self, free_text, row_id)
                 if not rig_response:
                     print("Error: rig_response is None")
 
@@ -396,3 +398,32 @@ def generate_unique_filename(directory, base_name, extension="csv"):
         if not os.path.exists(full_path):
             return full_path  # Return the first available filename
         i += 1
+
+
+def embed_queries_for_eval(data_path):
+    def parse_free_text(text):
+        """Parse `free_text` as a list or wrap it in a list if it's plain text."""
+        try:
+            # Try to parse the value as a Python literal
+            parsed_value = ast.literal_eval(text)
+            # Ensure the parsed value is a list
+            if isinstance(parsed_value, list):
+                return parsed_value
+            else:
+                return [parsed_value]
+        except (SyntaxError, ValueError):
+            # If parsing fails, wrap the text in a list
+            return [text.strip()]
+    df = pd.read_csv(data_path)
+    # free_text_list = df["free_text","expected_response"].tolist()
+    df["expected_response"] = df["expected_response"].apply(ast.literal_eval)  # Convert strings to dictionaries
+    df["free_text"] = df["free_text"].apply(parse_free_text)  # Handle plain strings and lists
+
+    # Create eval_data_generation from the DataFrame
+    free_text_list = [
+        ( row["id"],row["free_text"],row["expected_response"],row["rule_types_names"])
+        for _, row in df.iterrows()
+    ]
+    for row_id, free_text,expected,type_name in free_text_list:
+         log_question_and_answer(row_id, free_text, expected, type_name)
+         print(row_id, type_name)

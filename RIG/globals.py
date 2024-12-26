@@ -6,38 +6,22 @@ from dotenv import find_dotenv, load_dotenv
 from ollamamia import Ollamamia
 from RIG.src.Utils.db_manager import DBManager
 
-load_dotenv(find_dotenv())
-
-
-def validate_path(env_var, var_name):
-    """Validate and return the path or None if invalid."""
-    if not env_var or not os.path.exists(env_var):
-        logging.error(f"Warning: {var_name} is invalid or does not exist: {env_var}")
-    return env_var
-
-
-def validate_numeric(env_var, var_name, cast_func, default=None):
-    try:
-        return cast_func(env_var) if env_var else default
-    except ValueError:
-        logging.error(f"Warning: {var_name} is invalid: {env_var}")
-        return default
-
 
 class Globals:
     gemma_model_name = "gemma2:2b-instruct-q8_0"
     rag_model_name = "snowflake-arctic-embed:137m"
     def __init__(self):
-        self.project_directory = validate_path(os.getenv("PROJECT_DIRECTORY"), "PROJECT_DIRECTORY")
-        self.evaluation_directory = validate_path(os.getenv("EVALUATION_DIRECTORY"), "EVALUATION_DIRECTORY")
-        self.rule_types_directory = validate_path(os.getenv("RULE_TYPES_DIRECTORY"), "RULE_TYPES_DIRECTORY")
-        self.rag_difference = validate_numeric(os.getenv("RAG_DIFFERENCE"), "RAG_DIFFERENCE", float)
-        self.rag_threshold = validate_numeric(os.getenv("RAG_THRESHOLD"), "RAG_THRESHOLD", float)
-        self.temperature = validate_numeric(os.getenv("TEMPERATURE"), "TEMPERATURE", float)
-        self.top_p = validate_numeric(os.getenv("TOP_P"), "TOP_P", float)
-        self.max_context_length = validate_numeric(os.getenv("MAX_CONTEXT_LENGTH"), "MAX_CONTEXT_LENGTH", int)
-        self.max_new_tokens = validate_numeric(os.getenv("MAX_NEW_TOKENS"), "MAX_NEW_TOKENS", int)
-        print("---------------------------------------------------", self.rag_threshold)
+        self.project_directory = self.validate_path("PROJECT_DIRECTORY")
+        self.evaluation_directory = self.validate_path("EVALUATION_DIRECTORY")
+        self.rule_types_directory = self.validate_path("RULE_TYPES_DIRECTORY")
+        self.rag_difference = self.validate_numeric("RAG_DIFFERENCE", float)
+        self.rag_threshold = self.validate_numeric("RAG_THRESHOLD", float)
+        self.temperature = self.validate_numeric("TEMPERATURE", float)
+        self.top_p = self.validate_numeric("TOP_P", float)
+        self.max_context_length = self.validate_numeric("MAX_CONTEXT_LENGTH", int)
+        self.max_new_tokens = self.validate_numeric("MAX_NEW_TOKENS", int)
+
+
         self.db_manager = DBManager(os.path.join(self.project_directory, "db_data.csv"))
 
         self.ollamamia = Ollamamia()
@@ -65,6 +49,21 @@ class Globals:
             ollama.pull(self.gemma_model_name)
         except:
             pass
+
+    def validate_path(self, var_name):
+        value = os.getenv(var_name)
+        if not value or not os.path.exists(value):
+            raise ValueError(f"{var_name} is not set or the path does not exist: {value}")
+        return value
+
+    def validate_numeric(self, var_name, value_type):
+        value = os.getenv(var_name)
+        if value is None:
+            raise ValueError(f"{var_name} is not set")
+        try:
+            return value_type(value)
+        except ValueError:
+            raise ValueError(f"{var_name} must be a valid {value_type.__name__}")
 
 
 GLOBALS = Globals()

@@ -23,6 +23,7 @@ class RuleInstanceGenerator:
         self.models = MODELS
         self.get_instance = Get()
         self.new_type = NewType()
+        # self.add_rule_types_from_folder()
 
     def new_rule_type(self, rule_type):
         """
@@ -32,6 +33,7 @@ class RuleInstanceGenerator:
         """
         self.new_type.add(rule_type)
         log_interactions({"succeeded": True, "file upload": rule_type})
+        return True
 
 
     def get_rule_instance(self, free_text: str, row_id=None, for_eval=False) -> dict:
@@ -91,19 +93,15 @@ class RuleInstanceGenerator:
 
     def add_rule_types_from_folder(self):
         rule_types_directory = GLOBALS.rule_types_directory
-        try:
-            if isinstance(rule_types_directory, str):
-                rule_types_loaded = []
-                for file_name in os.listdir(rule_types_directory):
-                    if file_name.endswith(".json"):
-                        rule_types_loaded.append(file_name)
-                        if not self.new_rule_type(os.path.join(rule_types_directory, file_name)):
-                            return f"in  add_rule_types_from_folder, loading don't complete. error with: {file_name}"
-                print(f"rule_types_loaded: {rule_types_loaded}")
-                return f"rule_types_loaded: {rule_types_loaded}"
-        except Exception as e:
-            return f"in add_rule_types_from_folder, error occur: {e}"
-        return "in add_rule_types_from_folder, no folder provided"
+        rule_types_loaded = []
+        for file_name in os.listdir(rule_types_directory):
+            print(f"load {file_name}")
+            if file_name.endswith(".json"):
+                rule_types_loaded.append(file_name)
+                if not self.new_rule_type(os.path.join(rule_types_directory, file_name)):
+                    return f"in  add_rule_types_from_folder, loading don't complete. error with: {file_name}"
+        print(f"rule_types_loaded: {rule_types_loaded}")
+        return f"rule_types_loaded: {rule_types_loaded}"
 
     def tweak_rag_parameters(self, rag_threshold=GLOBALS.rag_threshold, rag_difference=GLOBALS.rag_difference):
         GLOBALS.rag_threshold = rag_threshold
