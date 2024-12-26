@@ -11,6 +11,7 @@ class Globals:
     gemma_model_name = "gemma2:2b-instruct-q8_0"
     rag_model_name = "snowflake-arctic-embed:137m"
     def __init__(self):
+        load_dotenv(find_dotenv())
         self.project_directory = self.validate_path("PROJECT_DIRECTORY")
         self.evaluation_directory = self.validate_path("EVALUATION_DIRECTORY")
         self.rule_types_directory = self.validate_path("RULE_TYPES_DIRECTORY")

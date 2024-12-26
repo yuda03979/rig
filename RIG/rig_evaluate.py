@@ -195,8 +195,6 @@ def evaluate_func(
         sleep_time_each_10=30,
         batch_size=250
 ):
-    embed_queries_for_eval(data_file_path)
-    return
     df_eval = pd.read_csv(data_file_path)
     # Parse `excepted_response` and `free_text`
     df_eval["expected_response"] = df_eval["expected_response"].apply(

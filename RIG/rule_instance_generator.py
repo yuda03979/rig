@@ -2,7 +2,6 @@ import os
 import time
 from datetime import datetime
 
-from RIG.src.Utils.db_manager import DBManager
 from RIG.globals import GLOBALS, MODELS
 from RIG.src.App.rule_instance.get import Get
 from RIG.src.App.new_type import NewType
@@ -10,7 +9,6 @@ from RIG.src.Utils.utils import log_interactions, log_question_and_answer
 
 from RIG.src.Utils.rag_api import RagApi
 from RIG.src.Utils.gemma_api import GemmaApi
-from RIG.src.Utils.gpt_server import GPTServer
 from RIG.rig_evaluate import *
 
 
