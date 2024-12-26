@@ -12,7 +12,7 @@ services:
       timeout: 3s
       retries: 10
     networks:
-      - rig_network  # Attach to custom network
+      - rig_network
   app:
     build: .
     container_name: rig
@@ -36,11 +36,11 @@ services:
       - ${RULE_TYPES_DIRECTORY}:${RULE_TYPES_DIRECTORY}
       - ${EVALUATION_DIRECTORY}:${EVALUATION_DIRECTORY}
     networks:
-      - rig_network  # Attach to the same custom network
+      - rig_network
 
 volumes:
   ollama_data:
 
 networks:
-  rig_network:  # Define the custom network
+  rig_network:
     driver: bridge
