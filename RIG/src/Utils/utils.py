@@ -85,7 +85,7 @@ def log_question_and_answer(response):
     if not os.path.exists(log_file):
         with open(log_file, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(["row_id", "Timestamp", "Question", "Answer", "Embedding","Type_Name"])  # Headers
+            writer.writerow(["row_id", "Timestamp", "Question", "Answer", "Embedding", "Type_Name"])  # Headers
     question = response["free_text"]
     answer = response["model_response"]
     type_name = response["type_name"]

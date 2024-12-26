@@ -381,7 +381,7 @@ Output:
         except IndexError:
             # Handle the case where no matching value is found
             example_schema_1 = "***schema extraction failed***"  # Replace with your desired default value
-            print("1" + example_schema_1)
+            # print("1" + example_schema_1)
 
         example_output_1 = str(examples["example_1"]["response"])
 
@@ -393,7 +393,7 @@ Output:
         except IndexError:
             # Handle the case where no matching value is found
             example_schema_2 = "***schema extraction failed***"  # Replace with your desired default value
-            print("2" + example_schema_2)
+            # print("2" + example_schema_2)
 
         example_output_2 = str(examples["example_2"]["response"])
 
@@ -442,7 +442,7 @@ Output:
     - Free text: {free_text}
     - Output:
     """
-    print("prompt = " + prompt)
+    # print("prompt = " + prompt)
     return prompt
 
 

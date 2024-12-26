@@ -21,7 +21,7 @@ class CreateExamples:
         """
         self.rag_api = MODELS.rag_api
         self.log_dir = os.path.join(GLOBALS.project_directory, 'logs')
-        self.log_file = os.path.join(self.log_dir,"logs_examples5.csv")
+        self.log_file = os.path.join(self.log_dir,"logs_examples.csv")
 
 
     def clean_text(self,text):
