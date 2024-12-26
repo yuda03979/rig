@@ -93,8 +93,9 @@ class RuleInstanceGenerator:
                 rule_types_loaded.append(file_name)
                 if not self.new_rule_type(os.path.join(rule_types_directory, file_name)):
                     return f"in  add_rule_types_from_folder, loading don't complete. error with: {file_name}"
-        print(f"rule_types_loaded: {rule_types_loaded}")
-        return f"rule_types_loaded: {rule_types_loaded}"
+        # print(f"rule_types_loaded: {rule_types_loaded}")
+        # return f"rule_types_loaded: {rule_types_loaded}"
+        return True
 
     def tweak_rag_parameters(self, rag_threshold=GLOBALS.rag_threshold, rag_difference=GLOBALS.rag_difference):
         GLOBALS.rag_threshold = rag_threshold
@@ -112,8 +113,8 @@ class RuleInstanceGenerator:
 
     def evaluate(
         self,
-        data_file_path=os.path.join(GLOBALS.evaluation_directory, "data_yuda.csv"),
-        output_directory=os.path.join(GLOBALS.evaluation_directory, "output"),
+        data_file_path=GLOBALS.df_eval_path,
+        output_directory=GLOBALS.eval_output_dir,
         start_point=0,
         end_point=2,  # None - all the data
         sleep_time_each_10_iter=30,

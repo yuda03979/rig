@@ -37,10 +37,8 @@ services:
       - ${EVALUATION_DIRECTORY}:${EVALUATION_DIRECTORY}
     networks:
       - rig_network
-
 volumes:
   ollama_data:
-
 networks:
   rig_network:
     driver: bridge

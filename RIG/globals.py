@@ -8,7 +8,7 @@ from RIG.src.Utils.db_manager import DBManager
 
 
 class Globals:
-    gemma_model_name = "shieldgemma:2b"#"gemma2:2b-instruct-q8_0"
+    gemma_model_name = "gemma2:2b-instruct-q8_0" # "shieldgemma:2b"#
     rag_model_name = "snowflake-arctic-embed:137m"
     def __init__(self):
         load_dotenv(find_dotenv())
@@ -24,6 +24,10 @@ class Globals:
 
 
         self.db_manager = DBManager(os.path.join(self.project_directory, "db_data.csv"))
+
+        self.db_examples_path = os.path.join(self.project_directory, "db_examples.csv")
+        self.df_eval_path = os.path.join(self.evaluation_directory, "data_yuda.csv")
+        self.eval_output_dir = os.path.join(self.evaluation_directory, "output")
 
         self.ollamamia = Ollamamia()
 

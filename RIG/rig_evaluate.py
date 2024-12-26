@@ -23,8 +23,6 @@ def parse_free_text(text):
 
 
 
-
-
 # Helper Functions
 def lower_values(expected, response):
     """Normalize values to lowercase for comparison."""
@@ -49,7 +47,7 @@ def predict(self, free_text, row_id):
     """Predict rule instance using the self."""
     model_response = self.get_rule_instance(free_text,row_id,for_eval=True)
     if model_response["is_error"] == True:
-        print("error: ", model_response)
+        print("---------- model return error ---------: ", model_response)
         return False, False
     rule_instance = model_response["rule_instance"]
     response = rule_instance["params"]
@@ -218,7 +216,7 @@ def evaluate_func(
 
     for i, (row_id, type_name, expected, free_text_list) in tqdm.tqdm(enumerate(eval_data_generation[start_point:end_point]),
                                                                       total=len(eval_data_generation[start_point:end_point])):
-        print(f"Processing row {i + 1}/{len(eval_data_generation)}")
+        # print(f"Processing row {i + 1}/{len(eval_data_generation)}")
 
         if not i % 10:
             time.sleep(sleep_time_each_10)
@@ -235,7 +233,8 @@ def evaluate_func(
                     print("Error: rig_response is None")
 
                 else:
-                    print(i, rig_response)
+                    # print(i, rig_response)
+                    pass
 
                 # Normalize and sort response
                 expected, response = correct_prediction(expected, response)
@@ -422,4 +421,4 @@ def embed_queries_for_eval(data_file_path):
     for row_id, free_text, expected, type_name in free_text_list:
         responses = {"row_id": row_id, "free_text": free_text, "model_response": expected, "type_name": type_name}
         log_question_and_answer(responses)
-        print(row_id, type_name)
+        # print(row_id, type_name)

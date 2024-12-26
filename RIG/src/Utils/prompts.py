@@ -423,7 +423,7 @@ Output:
 2. Do not add or infer fields. Fields missing in the schema or text should be set to "null".
 3. Carefully map field names from the schema to the text, even if the phrasing differs.
 4. Treat words like "without", "unknown" as "null", while "standard" "low" etc. will return the value.
-5. Output must match the schema exactly - your answer should be without \\n or new line".
+5. Output must match the schema exactly.
 
         ***Be sure to follow these rules***
 
