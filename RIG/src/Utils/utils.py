@@ -1,8 +1,6 @@
 import re
 import ast
 import json
-import yaml
-from yaml import SafeLoader
 import os
 import csv
 from datetime import datetime
@@ -35,17 +33,6 @@ def get_dict(input_string):
             return parsed_dict, True
         except (SyntaxError, ValueError):
             return input_string, False
-
-
-def json_from_yaml(yaml_doc):
-    dict_doc = yaml.load(yaml_doc, Loader=SafeLoader)
-    return dict_doc
-
-
-def yaml_from_json(json_doc):
-    yaml_doc = yaml.dump(json_doc, default_flow_style=False)
-    return yaml_doc
-
 
 def log_interactions(response):
     # create hidde logs directory if it doesn't exist
