@@ -5,7 +5,6 @@ from RIG.src.Utils.db_manager import DBManager
 from ollama import Client
 
 class Globals:
-    # these is in purpose not in the .env
     gemma_model_name = "gemma-2-2b-it-Q8_0:rig"
     rag_model_name = "snowflake-arctic-embed-137m:rig"
     def __init__(self):
@@ -20,14 +19,15 @@ class Globals:
         self.max_context_length = self.validate_numeric("MAX_CONTEXT_LENGTH", int)
         self.max_new_tokens = self.validate_numeric("MAX_NEW_TOKENS", int)
 
-
+        # db rule types manager
         self.db_manager = DBManager(os.path.join(self.project_directory, "db_data.csv"))
 
+        # other db's
         self.db_examples_path = os.path.join(self.project_directory, "db_examples.csv")
         self.df_eval_path = os.path.join(self.evaluation_directory, "data_eval.csv")
         self.eval_output_dir = os.path.join(self.evaluation_directory, "output")
 
-
+        # ollama
         self.ollama_client = Client()
 
 
@@ -51,13 +51,13 @@ class Globals:
     def validate_path(self, var_name):
         value = os.getenv(var_name)
         if not value or not os.path.exists(value):
-            raise ValueError(f"{var_name} is not set or the path does not exist: {value}")
+            print(f"{var_name} is not set or the path does not exist: {value}")
         return value
 
     def validate_numeric(self, var_name, value_type):
         value = os.getenv(var_name)
         if value is None:
-            raise ValueError(f"{var_name} is not set")
+            print(f"{var_name} is not set")
         try:
             return value_type(value)
         except ValueError:

@@ -1,7 +1,9 @@
 
 # Project Setup and Deployment Guide
 
-## Prerequisites
+## important!!! 
+- it will run slow on windows and mac, since docker is on vm
+- linux its ok and fast.
 
 ### Installation Requirements
 - lfs (for large file handling)
@@ -14,9 +16,9 @@
 ### 1. gguf files and modelfiles download:
 (for making ollama-models)
 
-download the rig_models folder from drive. 
+download the rig_modelfiles folder from drive. 
 ```angular2html
-link
+https://drive.google.com/drive/folders/1Jm97UnsVPvk_QpjnZi7ItNHHuqXsPhGq
 ```
 - its important that the gguf and the modelfiles will be on the same directory.
 
