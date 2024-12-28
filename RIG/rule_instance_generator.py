@@ -1,6 +1,7 @@
 import os
 import time
 from datetime import datetime
+import subprocess
 
 from RIG.globals import GLOBALS, MODELS
 from RIG.src.App.rule_instance.get import Get
@@ -102,12 +103,10 @@ class RuleInstanceGenerator:
             bool: True if all rule types were loaded successfully, else an error message.
         """
         rule_types_directory = GLOBALS.rule_types_directory
-        rule_types_loaded = []
 
         for file_name in os.listdir(rule_types_directory):
             print(f"Loading {file_name}")
             if file_name.endswith(".json"):
-                rule_types_loaded.append(file_name)
                 if not self.new_rule_type(os.path.join(rule_types_directory, file_name)):
                     return f"Error in add_rule_types_from_folder, loading didn't complete. Error with: {file_name}"
 
@@ -185,3 +184,4 @@ class RuleInstanceGenerator:
             sleep_time_each_10=sleep_time_each_10_iter,
             batch_size=batch_size
         )
+

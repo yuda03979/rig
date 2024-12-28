@@ -18,7 +18,8 @@ class GemmaApi:
 
 
     def predict(self, prompt) -> str:
-        # inference
-        response = GLOBALS.ollamamia[GLOBALS.gemma_model_name] << prompt
+        gemma_model_params = GLOBALS.gemma_model_params
+        gemma_model_params["prompt"] = prompt
+        response = GLOBALS.gemma_model(**gemma_model_params)
         # since the model should not generate } in the end:
-        return response + "}"
+        return response['response'] + "}"

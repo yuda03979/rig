@@ -4,27 +4,32 @@
 ## Prerequisites
 
 ### Installation Requirements
-- Git (for large file handling)
+- lfs (for large file handling)
 - Docker
 - Docker Compose
 
 ## Setup Steps
 
+-----------------
+### 1. gguf files and modelfiles download:
+(for making ollama-models)
 
-### 2. Model Downloads (Optional)
-
-download the rig_models folder from drive 
+download the rig_models folder from drive. 
 ```angular2html
 link
 ```
+- its important that the gguf and the modelfiles will be on the same directory.
 
-### 3. Configuration
+
+###### place this on the .env as GGUF_AND_MODELFILE_LOCATION
+
+----------------
+### 2. Configuration
 
 #### Environment Configuration
 1. edit the `.env` file
 2. Update paths and settings as required
 3. Ensure all necessary environment variables are set correctly
-
 
 ## Running the Application
 
@@ -47,10 +52,10 @@ output: ```Docker Compose version v2.29.1```
 ### Local Development
 Navigate to the project directory and run:
 ```bash
-docker compose cuild
+docker compose build
 ```
 ```angular2html
-docker compose run
+docker compose up
 ```
 
 The application will be accessible at: http://localhost:8000/docs
@@ -59,17 +64,44 @@ The application will be accessible at: http://localhost:8000/docs
 - [Docker's Python Guide](https://docs.docker.com/language/python/)
 - [Docker Getting Started - Sharing](https://docs.docker.com/go/get-started-sharing/)
 
-## Troubleshooting
-- Verify Docker and Docker Compose are correctly installed
-- Check environment variable configurations - they all must be correct, even if you don't use them.
-- Ensure model files are downloaded and placed correctly
 
-## Notes
-- Recommended to use the latest stable versions of Docker and Docker Compose
-- Platform-specific build may be necessary for cloud deployment
+## the models:
+after the project is up on docker, 
+you can load the gguf models into ollama form using modelfiles
+```angular2html
+import subprocess
+import os
 
+def create_models_from_gguf_docker():
+    """
+        create from gguf and modelfile an ollama-model. (see more on ollama website)
+        the names of the models match the name in the globals. so dont change that.
+    """
+    container_name = "ollama_rig"  # if theres 2 ollama containers (possible because they dont on the same networks) put here the container id.
+    modelfile_location = "/root/rig_models"  # do not change! its suitable also for windows. its the path in the ollama docker container
+
+    # Paths inside the ollama container (use mounted paths)
+    commands = [
+        f"docker exec {container_name} ollama create gemma-2-2b-it-Q8_0:rig -f {os.path.join(modelfile_location, 'gemma-2-2b-it-Q8_0')}",
+        f"docker exec {container_name} ollama create snowflake-arctic-embed-137m:rig -f {os.path.join(modelfile_location, 'snowflake-arctic-embed-m-long-F16')}"
+    ]
+    
+
+    for command in commands:
+        try:
+            print(f"Running: {command}")
+            result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+            print(result.stdout)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running {command}: {e.stderr}")
+
+create_models_from_gguf_docker()
+```
+
+- IMPORTANT!! you should do it only one time. you dont need to do it every time.
 
 # how to use:
+(you also have how_to_docker.ipynb for python functions.)
 - functions:
 1. get_rule_instance
 ```
@@ -108,8 +140,13 @@ curl -X POST "http://0.0.0.0:8000/set_rule_types" \
 
 6. feedback:
 ```angular2html
-
+curl -X 'POST' \
+  'http://0.0.0.0:8000/feedback?rig_response={}&good=True \
+  -H 'accept: application/json' \
+  -d ''
 ```
+output:
+thank you :)
 7. evaluate:
 ```
 curl -X 'POST' \
@@ -117,5 +154,4 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -d ''
 ```
-output:
-thank you :)
+

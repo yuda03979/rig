@@ -2,11 +2,11 @@ import os
 
 import ollama
 from dotenv import find_dotenv, load_dotenv
-from ollamamia import Ollamamia
 from RIG.src.Utils.db_manager import DBManager
-
+from ollama import Client
 
 class Globals:
+    # these is in purpose not in the .env
     gemma_model_name = "gemma-2-2b-it-Q8_0:rig"
     rag_model_name = "snowflake-arctic-embed-137m:rig"
     def __init__(self):
@@ -25,34 +25,29 @@ class Globals:
         self.db_manager = DBManager(os.path.join(self.project_directory, "db_data.csv"))
 
         self.db_examples_path = os.path.join(self.project_directory, "db_examples.csv")
-        self.df_eval_path = os.path.join(self.evaluation_directory, "data_yuda.csv")
+        self.df_eval_path = os.path.join(self.evaluation_directory, "data_eval.csv")
         self.eval_output_dir = os.path.join(self.evaluation_directory, "output")
 
-        self.ollamamia = Ollamamia()
 
-        # this is the rag_model
-        self.rag_model = self.rag_model_name
-        rag_model_config = self.ollamamia.model_config(model_name=self.rag_model, task="embed")
-        rag_model_config.pull = True
-        self.ollamamia[self.rag_model] = rag_model_config
+        self.ollama_client = Client()
 
-        # this is gemma model
-        self.gemma_model = self.gemma_model_name
-        gemma_model_config = self.ollamamia.model_config(model_name=self.gemma_model, task="generate")
-        gemma_model_config.pull = True
-        gemma_model_config.keep_alive = -1
-        gemma_model_config.options.stop = ["}"]
-        gemma_model_config.options.temperature = 0.1
-        gemma_model_config.options.top_p = self.top_p
-        gemma_model_config.options.num_ctx = self.max_context_length
-        gemma_model_config.options.num_predict = self.max_new_tokens
-        self.ollamamia[self.gemma_model] = gemma_model_config
 
-        try:
-            ollama.pull(self.rag_model_name)
-            ollama.pull(self.gemma_model_name)
-        except:
-            pass
+        self.gemma_model_params = {
+            "model": self.gemma_model_name,
+            "prompt": "",  # fill every time
+            "keep_alive": -1,  # the model keep load forever.
+            "options": {"temperature": self.temperature, "top_p": self.top_p, "stop": ["}"], "num_ctx": self.max_context_length, "num_predict": self.max_new_tokens}
+        }
+        self.gemma_model = self.ollama_client.generate
+
+        self.rag_model_params = {"model": self.rag_model_name, "input": []}   # fill prompt every time
+        self.rag_model = self.ollama_client.embed
+
+        # try:
+        #     ollama.pull(self.rag_model_name)
+        #     ollama.pull(self.gemma_model_name)
+        # except:
+        #     pass
 
     def validate_path(self, var_name):
         value = os.getenv(var_name)

@@ -34,27 +34,23 @@ def tweak_rag_parameters(
     return rig.tweak_rag_parameters(float(rag_threshold), float(rag_difference))
 
 @app.post("/feedback")
-def feedback(fb):
-    return rig.feedback(fb)
+def feedback(rig_response: dict, good: bool):
+    return rig.feedback(rig_response, good)
 
 
 @app.post("/evaluate")
 def evaluate(
         start_point=0,
-        end_point=2,  # None - all the data
+        end_point=2,  # -1 - all the data
         sleep_time_each_10_iter=30,
         batch_size=250
 ):
     print("evaluate")
-    try:
+    if end_point is not None:
         end_point = int(end_point)
-    except:
-        pass
     return rig.evaluate(
         start_point=int(start_point),
         end_point=end_point,  # None - all the data
         sleep_time_each_10_iter=int(sleep_time_each_10_iter),
         batch_size=int(batch_size)
     )
-
-

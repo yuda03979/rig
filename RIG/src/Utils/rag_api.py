@@ -61,7 +61,9 @@ class RagApi:
             text = "classification:\n" + text
 
         # get embedding
-        embedding = GLOBALS.ollamamia[GLOBALS.rag_model_name] << text
+        rag_model_params = GLOBALS.rag_model_params
+        rag_model_params["input"] = text
+        embedding = GLOBALS.rag_model(**rag_model_params)["embeddings"]
         embedding_json = json.dumps(embedding[0])
         return embedding_json, embedding
 
@@ -80,8 +82,11 @@ class RagApi:
                   Includes 'None' for unmatched queries.
         """
         query = "classification" + query
-        query_embedding = GLOBALS.ollamamia[GLOBALS.rag_model_name] << query
-        query_embedding = query_embedding[0]
+
+        rag_model_params = GLOBALS.rag_model_params
+        rag_model_params["input"] = query
+        query_embedding = GLOBALS.rag_model(**rag_model_params)
+        query_embedding = query_embedding['embeddings'][0]
 
         # Prepare matrix of rule type embeddings
         type_names = list(self.rule_types_embedding.keys())

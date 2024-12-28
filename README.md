@@ -1,5 +1,8 @@
 # getting started
 
+### this is NOT for the docker - see README.Docker
+
+----------------------
 # Installation
 
 ollama:
@@ -38,9 +41,43 @@ on the terminal run
 ollama serve
 ```
 
-and you ready to go:
-- this is python:
+now lets load our gguf models into ollama using dockerfile:
+- download the rig_modelfile directory
+```angular2html
+link
+```
+now, since i assume your 'models directory' in ollama set properly, you should run:
+```
+import subprocess
+import os
 
+def create_models_from_gguf_NOT_docker():
+    """
+        create the models on your computer
+        IMPORTANT!!! if you using windows, you should change in the modelfile the FROM section into a correct path.
+    """
+    modelfile_location = "/Users/yuda/PycharmProjects/RIG_v2/rig_modelfiles"
+
+    commands = [
+        f"ollama create gemma-2-2b-it-Q8_0:rig -f {os.path.join(modelfile_location, 'gemma-2-2b-it-Q8_0')}",
+        f"ollama create snowflake-arctic-embed-137m:rig -f {os.path.join(modelfile_location, 'snowflake-arctic-embed-m-long-F16')}"
+    ]
+    
+
+    for command in commands:
+        try:
+            print(f"Running: {command}")
+            result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+            print(result.stdout)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running {command}: {e.stderr}")
+
+create_models_from_gguf_NOT_docker()
+```
+- and you finished.
+
+-----------
+# how to use
 ```python
 from RIG.rule_instance_generator import RuleInstanceGenerator
 ```
@@ -52,12 +89,12 @@ from RIG.rule_instance_generator import RuleInstanceGenerator
 rig = RuleInstanceGenerator()
 ```
 
-
-
-
+```
+rig.add_rule_types_from_folder()
+```
 ```python
 # get list of existing rule types:
-rig.get_rule_types()
+rig.get_rule_types_names()
 ```
  ['missile malfunction',
   'tactical error',
@@ -139,7 +176,8 @@ output:
 
 ```python
 # giving us feedback on the response. it will help us to improve the project. it stores in .logs file, without internet connection.
-rig.feedback(True)  # or 0.8, or what ever you can  
+rig.feedback(rig_response=response, good=True)
+  # or 0.8, or what ever you can  
 ```
 thank you :)
 
@@ -148,33 +186,8 @@ thank you :)
 ```
 rig.evaluate(
     start_point=0,
-    end_point=2,  # None - all the data
+    end_point=2,  # -1 or None - all the data
     sleep_time_each_10_iter=5,
     batch_size=250
 )
 ```
-
-
-
-## using the GUI
-very basic, work only with the globals file constant
-
-
-```python
-from RIG.src.Utils.GUI import run_gui
-run_gui()
-```
-
-llama_new_context_with_model: n_ctx_per_seq (1024) < n_ctx_train (8192) -- the full capacity of the model will not be utilized
-ggml_metal_init: skipping kernel_get_rows_bf16                     (not supported)
-ggml_metal_init: skipping kernel_mul_mv_bf16_f32                   (not supported)
-{...}
-
-* Running on local URL:  http://0.0.0.0:8000
-
-To create a public link, set `share=True` in `launch()`.
-
-<img src="readme_imgs/gui.png" alt="GUI" width="10000" />
-
-### eval of classification
-<img src="readme_imgs/classification_output.png" alt="classification" width="10000" />
