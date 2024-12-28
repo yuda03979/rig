@@ -1,6 +1,5 @@
 import os
 
-import ollama
 from dotenv import find_dotenv, load_dotenv
 from RIG.src.Utils.db_manager import DBManager
 from ollama import Client
