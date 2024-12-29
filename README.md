@@ -31,9 +31,10 @@ curl -L -O https://huggingface.co/lmstudio-community/gemma-2-2b-it-GGUF/resolve/
 ```
 rag:
 ```
-git clone https://huggingface.co/BAAI/bge-m3
+https://huggingface.co/yixuan-chia/snowflake-arctic-embed-m-long-GGUF/resolve/main/snowflake-arctic-embed-m-long-F16.gguf?download=true
 ```
 
+but you also can use the models in the drive (there is also the modelfiles)
 
 ## how to use:
 on the terminal run
@@ -44,7 +45,7 @@ ollama serve
 now lets load our gguf models into ollama using dockerfile:
 - download the rig_modelfile directory
 ```angular2html
-link
+https://drive.google.com/drive/folders/1Jm97UnsVPvk_QpjnZi7ItNHHuqXsPhGq
 ```
 now, since i assume your 'models directory' in ollama set properly, you should run:
 ```
