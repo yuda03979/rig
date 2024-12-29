@@ -5,8 +5,7 @@ from RIG.src.Utils.db_manager import DBManager
 from ollama import Client
 
 class Globals:
-    gemma_model_name = "gemma-2-2b-it-Q8_0:rig"
-    rag_model_name = "snowflake-arctic-embed-137m:rig"
+
     def __init__(self):
         load_dotenv(find_dotenv())
         self.project_directory = self.validate_path("PROJECT_DIRECTORY")
@@ -18,6 +17,8 @@ class Globals:
         self.top_p = self.validate_numeric("TOP_P", float)
         self.max_context_length = self.validate_numeric("MAX_CONTEXT_LENGTH", int)
         self.max_new_tokens = self.validate_numeric("MAX_NEW_TOKENS", int)
+        self.gemma_model_name = os.getenv("GEMMA_MODEL_NAME")
+        self.rag_model_name = os.getenv("RAG_MODEL_NAME")
 
         # db rule types manager
         self.db_manager = DBManager(os.path.join(self.project_directory, "db_data.csv"))

@@ -39,6 +39,8 @@ services:
       - TOP_P=${TOP_P}
       - MAX_CONTEXT_LENGTH=${MAX_CONTEXT_LENGTH}
       - MAX_NEW_TOKENS=${MAX_NEW_TOKENS}
+      - GEMMA_MODEL_NAME=${GEMMA_MODEL_NAME}
+      - RAG_MODEL_NAME=${RAG_MODEL_NAME}
     ports:
       - "8000:8000"
     volumes:
