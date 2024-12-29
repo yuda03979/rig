@@ -1,6 +1,10 @@
+from xml.sax import default_parser_list
+
 from RIG.globals import GLOBALS
 
-
+def clean_text(text):
+    """Remove all non-alphanumeric characters and convert to lowercase."""
+    return ''.join(char.lower() for char in text if char.isalnum())
 def post_processing(type_name: str, model_response: dict) -> dict:
     """
     Perform post-processing on the model response to integrate it into the rule instance.
@@ -26,25 +30,27 @@ def post_processing(type_name: str, model_response: dict) -> dict:
         type_name=type_name, feature="schema"
     )
     model_response = correct_numerical_values(schema, model_response)
-
+    model_response_clean = {}
+    for key, value in model_response.items():
+        key = clean_text(key)
+        model_response_clean[key] = value
     # Retrieve the default rule instance
     default_rule_instance = GLOBALS.db_manager.get_dict_features(
         type_name, 'default_rule_instance'
     )
 
+    default_param_out_params = ["severity", "ruleInstanceName"]
+
     # Update params excluding specific keys
     for param in [
-        key for key in model_response.keys()
-        if key not in ["severity", "ruleInstanceName", "ruleinstancename"]
-    ]:
-        default_rule_instance['params'][param] = model_response.get(param)
+        key for key in default_rule_instance['params'].keys()]:
+        param_clean = clean_text(param)
+        default_rule_instance['params'][param] = model_response_clean.get(param_clean)
 
     # Update severity and rule instance name directly
-    for param in [
-        key for key in model_response.keys()
-        if key in ["severity", "ruleInstanceName", "ruleinstancename"]
-    ]:
-        default_rule_instance[param] = model_response[param]
+    for param in default_param_out_params:
+        param_clean = clean_text(param)
+        default_rule_instance[param] = model_response_clean[param_clean]
 
     return default_rule_instance
 
