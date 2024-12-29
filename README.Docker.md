@@ -1,7 +1,7 @@
 
 # Project Setup and Deployment Guide
 
-## important!!! 
+## important!!!
 - it will run slow on windows and mac, since docker is on vm
 - linux its ok and fast.
 

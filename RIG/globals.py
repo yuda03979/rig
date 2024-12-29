@@ -17,6 +17,7 @@ class Globals:
         self.top_p = self.validate_numeric("TOP_P", float)
         self.max_context_length = self.validate_numeric("MAX_CONTEXT_LENGTH", int)
         self.max_new_tokens = self.validate_numeric("MAX_NEW_TOKENS", int)
+
         self.gemma_model_name = os.getenv("GEMMA_MODEL_NAME")
         self.rag_model_name = os.getenv("RAG_MODEL_NAME")
 
@@ -40,7 +41,7 @@ class Globals:
         }
         self.gemma_model = self.ollama_client.generate
 
-        self.rag_model_params = {"model": self.rag_model_name, "input": []}   # fill prompt every time
+        self.rag_model_params = {"model": self.rag_model_name, "input": []}   # fill input every time
         self.rag_model = self.ollama_client.embed
 
         # try:
