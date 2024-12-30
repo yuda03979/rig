@@ -23,7 +23,6 @@ curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.s
 sudo apt install git-lfs
 ```
 
-if using the package and not the docker:
 ## - downlads (if using internet):
 gemma:
 ```
@@ -33,8 +32,18 @@ rag:
 ```
 https://huggingface.co/yixuan-chia/snowflake-arctic-embed-m-long-GGUF/resolve/main/snowflake-arctic-embed-m-long-F16.gguf?download=true
 ```
+and place them in the rig_modelfile directory (or change the path inside the modelfile. for docker its better they're together. and you can delete the file after - just keep the directory) 
 
-but you also can use the models in the drive (there is also the modelfiles)
+but you also can download the models from the drive (there is also the modelfiles)
+```angular2html
+https://drive.google.com/drive/folders/1Jm97UnsVPvk_QpjnZi7ItNHHuqXsPhGq
+```
+
+------
+
+## for docker check the README.docker
+
+------------
 
 ## how to use:
 on the terminal run
@@ -42,40 +51,8 @@ on the terminal run
 ollama serve
 ```
 
-now lets load our gguf models into ollama using dockerfile:
-- download the rig_modelfile directory
-```angular2html
-https://drive.google.com/drive/folders/1Jm97UnsVPvk_QpjnZi7ItNHHuqXsPhGq
-```
-now, since i assume your 'models directory' in ollama set properly, you should run:
-```
-import subprocess
-import os
-
-def create_models_from_gguf_NOT_docker():
-    """
-        create the models on your computer
-        IMPORTANT!!! if you using windows, you should change in the modelfile the FROM section into a correct path.
-    """
-    modelfile_location = "/Users/yuda/PycharmProjects/RIG_v2/rig_modelfiles"
-
-    commands = [
-        f"ollama create gemma-2-2b-it-Q8_0:rig -f {os.path.join(modelfile_location, 'gemma-2-2b-it-Q8_0')}",
-        f"ollama create snowflake-arctic-embed-137m:rig -f {os.path.join(modelfile_location, 'snowflake-arctic-embed-m-long-F16')}"
-    ]
-    
-
-    for command in commands:
-        try:
-            print(f"Running: {command}")
-            result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
-            print(result.stdout)
-        except subprocess.CalledProcessError as e:
-            print(f"Error running {command}: {e.stderr}")
-
-create_models_from_gguf_NOT_docker()
-```
-- and you finished.
+- now run in the load_gguf_modelfile the 2th cell.
+- notice i assume you already set the models_directory in ollama.
 
 -----------
 # how to use
@@ -178,7 +155,6 @@ output:
 ```python
 # giving us feedback on the response. it will help us to improve the project. it stores in .logs file, without internet connection.
 rig.feedback(rig_response=response, good=True)
-  # or 0.8, or what ever you can  
 ```
 thank you :)
 
