@@ -30,9 +30,7 @@ class RagApi:
         """
         rule_types_embeddings = {}
         for type_name in self.db_manager.get_all_types_names():
-            rule_types_embeddings[type_name] = list(
-                np.array(self.db_manager.get_embedding(type_name))
-            )
+            rule_types_embeddings[type_name] = self.db_manager.get_embedding(type_name)
         return rule_types_embeddings
 
     def add_rule_type_embedding(self, type_name: str, embedding: list) -> None:
@@ -64,7 +62,7 @@ class RagApi:
         rag_model_params = GLOBALS.rag_model_params
         rag_model_params["prompt"] = text
         embedding = GLOBALS.rag_model(**rag_model_params)["embedding"]
-        embedding_json = json.dumps(embedding[0])
+        embedding_json = json.dumps(embedding)
         return embedding_json, embedding
 
     def get_closest_type_name(self, query: str) -> list:
@@ -86,7 +84,7 @@ class RagApi:
         rag_model_params = GLOBALS.rag_model_params
         rag_model_params["prompt"] = query
         query_embedding = GLOBALS.rag_model(**rag_model_params)
-        query_embedding = query_embedding['embedding'][0]
+        query_embedding = query_embedding['embedding']
 
         # Prepare matrix of rule type embeddings
         type_names = list(self.rule_types_embedding.keys())

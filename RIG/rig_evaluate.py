@@ -195,8 +195,24 @@ def evaluate_func(
 ):
     df_eval = pd.read_csv(data_file_path)
     # Parse `excepted_response` and `free_text`
-    df_eval["expected_response"] = df_eval["expected_response"].apply(
-        ast.literal_eval)  # Convert strings to dictionaries
+    try:
+        import ast
+
+        def safe_literal_eval(val):
+            try:
+                return ast.literal_eval(val)
+            except (ValueError, SyntaxError):
+                return {}  # Return empty dict for malformed entries
+
+        df_eval["expected_response"] = (
+            df_eval["expected_response"]
+            .str.replace("'", '"')  # Fix quotes
+            .replace({"None": "{}", "N/A": "{}"})  # Replace invalid entries
+            .apply(safe_literal_eval))  # Evaluate safely
+    except:
+        df_eval["expected_response"] = df_eval["expected_response"].apply(
+        dict)  # Convert strings to dictionaries
+        print("blah")
     df_eval["free_text"] = df_eval["free_text"].apply(parse_free_text)  # Handle plain strings and lists
 
     # Create eval_data_generation from the DataFrame

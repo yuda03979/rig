@@ -2,7 +2,7 @@ import os
 
 from dotenv import find_dotenv, load_dotenv
 from RIG.src.Utils.db_manager import DBManager
-from ollama import Client
+import ollama
 
 class Globals:
 
@@ -30,8 +30,6 @@ class Globals:
         self.eval_output_dir = os.path.join(self.evaluation_directory, "output")
 
         # ollama
-        self.ollama_client = Client()
-
 
         self.gemma_model_params = {
             "model": self.gemma_model_name,
@@ -39,10 +37,10 @@ class Globals:
             "keep_alive": -1,  # the model keep load forever.
             "options": {"temperature": self.temperature, "top_p": self.top_p, "stop": ["}"], "num_ctx": self.max_context_length, "num_predict": self.max_new_tokens}
         }
-        self.gemma_model = self.ollama_client.generate
+        self.gemma_model = ollama.generate
 
-        self.rag_model_params = {"model": self.rag_model_name, "prompt": []}   # fill input every time
-        self.rag_model = self.ollama_client.embeddings
+        self.rag_model_params = {"model": self.rag_model_name}   # fill input every time
+        self.rag_model = ollama.embeddings
 
         # try:
         #     ollama.pull(self.rag_model_name)
