@@ -41,8 +41,8 @@ class Globals:
         }
         self.gemma_model = self.ollama_client.generate
 
-        self.rag_model_params = {"model": self.rag_model_name, "input": []}   # fill input every time
-        self.rag_model = self.ollama_client.embed
+        self.rag_model_params = {"model": self.rag_model_name, "prompt": []}   # fill input every time
+        self.rag_model = self.ollama_client.embeddings
 
         # try:
         #     ollama.pull(self.rag_model_name)
