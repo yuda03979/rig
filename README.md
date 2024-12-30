@@ -39,6 +39,8 @@ but you also can download the models from the drive (there is also the modelfile
 https://drive.google.com/drive/folders/1Jm97UnsVPvk_QpjnZi7ItNHHuqXsPhGq
 ```
 
+if you using windows and NOT docker change the path inside the modelfile in the first line (after FROM)
+
 ------
 
 ## for docker check the README.docker

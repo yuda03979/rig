@@ -22807,6 +22807,17 @@ MuseumD2Q3,"We need to create a rule instance for a library evaluation. This eva
     ""Accessibility"": ""wheelchair accessible"",
     ""Architectural style"": ""modern""
 }",Museum,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+MuseumD2Q4,We,need,to,create,an,instance,of,Library,Evaluation.,The,severity,of,this,evaluation,is,two.,The,library,has,an,exhibit,space,of,five,hundred.,The,quality,of,lighting?,It's,excellent.,Artifact,preservation?,We,don't,have,information,on,that.,The,flow,of,visitors,is,roughly,about,three,hundred.,They,have,interactive,displays,such,as,digital,catalogs.,The,library,is,also,wheelchair,accessible.,The,architecture?,It's,Modern.,"{
+    ""ruleInstanceName"": ""library evaluation"",
+    ""severity"": ""2"",
+    ""Exhibit space"": ""500"",
+    ""Lighting quality"": ""excellent"",
+    ""Artifact preservation"": ""null"",
+    ""Visitor flow"": ""300"",
+    ""Interactive displays"": ""digital catalogs"",
+    ""Accessibility"": ""wheelchair accessible"",
+    ""Architectural style"": ""modern""
+}",Museum,,,,,,,,,,
 MuseumD2Q5,"We need to come up with a Library Evaluation instance, focusing on the Library of course. The exhibit space in the library is, well, about five hundred. Now, the lighting quality there is simply excellent. The visitor flow is around three hundred, give or take. The interactive displays they've got are these cool Digital catalogs, and the place is totally Wheelchair accessible. The architectural style, oh, that's all Modern. Just so you know, the severity of this evaluation is two.","{
     ""ruleInstanceName"": ""library evaluation"",
     ""severity"": ""2"",
