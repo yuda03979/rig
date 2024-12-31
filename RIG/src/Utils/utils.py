@@ -11,6 +11,7 @@ from RIG.globals import GLOBALS,MODELS
 
 def get_dict(input_string):
     # Use regex to find content between { and } that looks like a valid JSON
+    input_string = fix_unbalanced_braces(input_string)
     input_string = re.sub(r"[\t\n]", "", input_string)
     match = re.search(r'\{[^}]*\}', input_string)
 
@@ -28,11 +29,32 @@ def get_dict(input_string):
         try:
             json_str = re.sub(r"(None|null|'None'|\"None\"|'null'|\"null\")", '"null"', json_str)
             # Use ast for more flexible parsing
-            import ast
             parsed_dict = ast.literal_eval(json_str)
             return parsed_dict, True
         except (SyntaxError, ValueError):
             return input_string, False
+
+
+
+
+def fix_unbalanced_braces(response):
+    """
+    Fix unbalanced braces in a model response by ensuring correct matching of { and }.
+    """
+    response = re.sub(r"[\t\n]", "", response)  # Remove tabs and newlines
+
+    open_count = response.count('{')
+    close_count = response.count('}')
+
+    if close_count > open_count:
+        excess_close = close_count - open_count
+        response = response.replace('}', '', excess_close)
+
+    elif open_count > close_count:
+        missing_close = open_count - close_count
+        response += '}' * missing_close  # Add missing closing braces
+
+    return response
 
 def log_interactions(response):
     # create hidde logs directory if it doesn't exist

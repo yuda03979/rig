@@ -50,16 +50,16 @@ class Globals:
             "prompt": "",  # fill every time
             "keep_alive": -1,  # the model keep load forever.
             "options": {"temperature": self.temperature, "top_p": self.top_p, "stop": ["}"],
-                        "num_ctx": self.max_context_length, "num_predict": 10}
+                        "num_ctx": self.max_context_length, "num_predict": 100}
         }
         self.validation_model = ollama.generate
 
-        # try:
+        try:
         #     ollama.pull(self.rag_model_name)
         #     ollama.pull(self.gemma_model_name)
-        #     ollama.pull(self.validation_model_name)
-        # except:
-        #     pass
+            ollama.pull(self.validation_model_name)
+        except:
+            pass
 
     def validate_path(self, var_name):
         value = os.getenv(var_name)

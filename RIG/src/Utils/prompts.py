@@ -602,26 +602,6 @@ def validation_prompt_v2(free_text, response_dict):
 
     Output:{{'score': 1}}
 
-    Example 2:
-    Free Text:
-    We need to generate an instance for Eagle Assessment. Our eagle is quite the scavenger, with an efficiency of about eighty. The flight altitude of this bird? High. Its beak sharpness is a solid seven. And you won't believe this, but the vision acuity is excellent! With a wingspan of, um, two hundred, and thermal riding skill of an expert, this bird is a pro. It has a bone digestion of ninety, but the feather maintenance is, well, just not available. The severity of this evaluation, let's say, is four.
-
-    Structured Response:
-    {{
-        "ruleInstanceName": "null",
-        "severity": "null",
-        "Scavenging efficiency": "80",
-        "Flight altitude": "high",
-        "Beak sharpness": "7",
-        "Vision acuity": "excellent",
-        "Wing span": "200",
-        "Thermal riding skill": "expert",
-        "Bone digestion": "90",
-        "Feather maintenance": "null"
-    }}
-
-    Output:{{'score': 0}}
-
     Example 3:
     Free Text:
     We need to set up an instance of Viking Axe Analysis. This is related to the weapon type Viking Axe. The blade resilience of the axe is, well, unbreakable. The guard width is pretty broad. The grip of the axe is a bit rugged. However, the tip precision is just, um, low. The blade straightness is about, let's say something like eighty-five. The severity of the axe design is seven.
@@ -685,6 +665,9 @@ def validation_prompt_v2(free_text, response_dict):
 
     Output:{{'score': 0}}
 
+    REMEMBER!! YOUR ANSWER SHOULD BE {{'score': int}} AND THAT IT!
+    the defult score is 1. only if you sure it wrong set it to 0.
+    
     Our case:
     Free Text:
     {free_text}
@@ -692,4 +675,16 @@ def validation_prompt_v2(free_text, response_dict):
     Structured Response:
     {json.dumps(response_dict, indent=2)}
     Output:"""
+    return prompt
+
+
+def validation_prompt_v3(free_text, response_dict):
+    prompt = f"""generate only in this shape: {{'score': int}}, where int is 1 for yes, 0 for not.
+     your job: is {response_dict} is output of: {free_text}?
+     ask yourself: are the `structure output` fields related to the `free text` topics? 
+     are the values inside the `structure output` values (not the fields) inside the `free text`?
+     only if you absolutely sure they're not the score is 0. otherwise its 1.
+     mostly notice the numerical values if they are correct.
+     your response:
+"""
     return prompt
