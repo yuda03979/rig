@@ -678,13 +678,193 @@ def validation_prompt_v2(free_text, response_dict):
     return prompt
 
 
-def validation_prompt_v3(free_text, response_dict):
-    prompt = f"""generate only in this shape: {{'score': int}}, where int is 1 for yes, 0 for not.
-     your job: is {response_dict} is output of: {free_text}?
-     ask yourself: are the `structure output` fields related to the `free text` topics? 
-     are the values inside the `structure output` values (not the fields) inside the `free text`?
-     only if you absolutely sure they're not the score is 0. otherwise its 1.
-     mostly notice the numerical values if they are correct.
-     your response:
-"""
+def validation_prompt_v3(free_text, description, response_dict):
+    prompt = f"""
+    Generate a response in this format: {{'score': int}}, where int is 1 for yes, 0 for no. Default is 0.  
+    Task: Determine if the free text: "{free_text}" aligns with the schema: {response_dict}.  
+    Field Descriptions: {description}  
+
+    **Evaluation Criteria:**  
+    - Do the fields in the schema correspond to topics in the free text?  
+    - Are the values (not null) from the schema present in the free text?  
+
+    ----------------------------------  
+    **Example (score: 0):**  
+    **Schema:**  
+    {{
+        "ruleInstanceName": "kangaroo activity monitoring",
+        "severity": "3",
+        "Jump distance": "null",
+        "Pouch capacity": "null",
+        "Herd dynamics": "null",
+        "Diet selectivity": "null",
+        "Defense behavior": "null",
+        "Speed on land": "null",
+        "Water retention": "null"
+    }}  
+    **Free Text:**  
+    An instance of Kangaroo Activity Monitoring needs to be created, dealing with the sharpness of the horn which is average. The muscle mass of the kangaroo is ninety. However, the kangaroo's aggressiveness is low. The diet is omnivorous, and breeding behavior is polygynous. Territorial defense is weak, and the severity of the event is three.  
+
+    **Problem:**  
+    The following fields are missing from the free text:  
+    - Jump distance  
+    - Pouch capacity  
+    - Herd dynamics  
+    - Diet selectivity  
+    - Defense behavior  
+    - Speed on land  
+    - Water retention  
+
+    **Response:** {{'score': 0}}  
+    ----------------------------------  
+    **Example (score: 1):**  
+    **Schema:**  
+    {{
+        "ruleInstanceName": "elephant population analysis",
+        "severity": "4",
+        "Horn sharpness": "null",
+        "Muscle mass": "5000",
+        "Aggressiveness": "medium",
+        "Diet needs": "herbivorous",
+        "Breeding behavior": "polygynous",
+        "Territorial defense": "average",
+        "Endurance": "7"
+    }}  
+    **Free Text:**  
+    We need to initiate an instance, let's call it elephant population analysis, with severity set to four. Horn sharpness is null. The muscle mass is around five thousand. The creature's aggressiveness is medium, and its diet needs are herbivorous. It follows polygynous breeding behavior, has average territorial defense, and endurance level is seven.  
+
+    **Response:** {{'score': 1}}  
+    ----------------------------------  
+
+    Now, evaluate this case:  
+    Does the free text: "{free_text}" align with the schema: {response_dict}?  
+
+    Response:  
+    """
+    return prompt
+
+
+def validation_prompt_v4(free_text, description, response_dict):
+    """
+    - if most of the fields values are 'null', its probably an error!
+    - even if only one value is not correct the response is 0!
+    """
+    prompt = f"""
+    Generate a response in this format: {{'score': int}}, where int is 1 for yes, 0 for no. Default is 0.  
+
+    ### Task:  
+    Evaluate if the free text:  
+    "{free_text}"  
+    corresponds to the schema:  
+    {response_dict}.  
+
+    Fields Descriptions:  
+    {description}  
+    
+    Note: if most of the fields values are 'null', its probably an error!
+    
+    ### Step-by-step Process:  
+    1. **Schema Field Check**:  
+    - Carefully examine the fields in the schema.  
+    - Ask: Do these fields align with key topics or entities mentioned in the free text?  
+
+    2. **Value Verification**:  
+    - For each field in the schema, check if the values (excluding nulls) appear in the free text.  
+    - Consider synonyms, paraphrasing, and slight variations in expression.  
+    - Ask: Does the free text explicitly or implicitly reflect these values?  
+
+    3. **Identify Missing or Extra Fields**:  
+    - List schema fields that are **not present** in the free text.  
+    - Also, check if the free text mentions any **extra information** not captured by the schema.  
+    - Ask: Are any key schema elements missing or irrelevant to the context of the free text?  
+
+    4. **Final Decision**:  
+    - If **all schema fields and values** are reflected in the free text, assign `score: 1`.  
+    - If **any schema field or value** is missing, assign `score: 0`.  
+
+    ### Example ({{'score': 0}}):  
+    
+    Does the free text:
+    "An instance of Kangaroo Activity Monitoring needs to be created, dealing with horn sharpness (average). Muscle mass is ninety. Aggressiveness is low. Diet is omnivorous. Breeding behavior is polygynous. Territorial defense is weak. Severity is three."  
+    align with the schema:
+    {{
+        "ruleInstanceName": "kangaroo activity monitoring",
+        "severity": "3",
+        "Jump distance": "null",
+        "Pouch capacity": "null",
+        "Herd dynamics": "null",
+        "Diet selectivity": "null",
+        "Defense behavior": "null",
+        "Speed on land": "null",
+        "Water retention": "null"
+    }}  ?
+    **Response:** {{'score': 0}}  
+
+    why: 
+    - **Schema Field Check**: "ruleInstanceName" and "severity" match.  
+    - **Value Verification**: Severity is correct, but other schema fields (Jump distance, Pouch capacity, etc.) are missing.  
+    - **Missing Fields**: ["Jump distance", "Pouch capacity", "Herd dynamics", "Diet selectivity", "Defense behavior", "Speed on land", "Water retention"]  
+
+    ----------------------------------  
+    ### Example {{'score': 1}}:  
+     
+    Does the free text:
+    "We need to initiate an instance of elephant population analysis, severity four. Horn sharpness is null. Muscle mass is five thousand. Aggressiveness is medium. Diet is herbivorous. Breeding behavior is polygynous. Territorial defense is average. Endurance is seven."
+    align with the schema: 
+    {{
+        "ruleInstanceName": "elephant population analysis",
+        "severity": "4",
+        "Horn sharpness": "null",
+        "Muscle mass": "5000",
+        "Aggressiveness": "medium",
+        "Diet needs": "herbivorous",
+        "Breeding behavior": "polygynous",
+        "Territorial defense": "average",
+        "Endurance": "7"
+    }} ?
+    **Response:** {{'score': 1}}
+    
+    why:
+    - **Schema Field Check**: All fields are present in the free text.  
+    - **Value Verification**: Muscle mass, aggressiveness, diet needs, breeding behavior, defense, and endurance match exactly.  
+    - **No Missing Fields** 
+
+    ----------------------------------  
+    ### Example {{'score': 0}}:  
+     
+    Does the free text:
+    "Create an instance of a surface skimmer, which is a type of marine species. It has a tentacle length of, um, seven. However, its water filtering ability is low, it's like, really low. The creature's camouflage ability is non-existent, and same goes for its reproduction method. This surface skimmer can tolerate depths up to five hundred. Its nutrient absorption is also low, and it's not that flexible under pressure. The sediment intake for this species is about ten, and the severity of this creature is one."
+    align with the schema: 
+    {{
+    "ruleInstanceName": "surface skimmer",
+    "severity": "1",
+    "Tentacle length": "7",
+    "Water filtering ability": "low",
+    "Camouflage skill": "null",
+    "Reproduction method": "null",
+    "Depth tolerance": "500",
+    "Nutrient absorption": "low",
+    "Flexibility under pressure": "null",
+    "Sediment intake": "10"
+    }} ?
+    **Response:** {{'score': 0}}
+    
+    why:
+    in the field "Flexibility under pressure": "null", it should be "low",
+    
+----------------------------------  
+    Important notes: 
+    - if most of the fields values are 'null', its probably an error!!
+    - even if only one value is not correct the response is 0!
+    - the default score are 1.
+
+    {{'score': unknown}}
+
+    ### Now, evaluate this case:  
+    Does the free text:  
+    "{free_text}"  
+    align with the schema:  
+    {response_dict}?  
+
+    **:Response:** """
     return prompt

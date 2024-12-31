@@ -81,11 +81,11 @@ class Get:
 
         if succeed:
             # validate_socre
-            score: int = self.validator.get_score(free_text=free_text, llm_response=model_response)
+            score: int = self.validator.get_score(
+                free_text=free_text,
+                description=GLOBALS.db_manager.get_dict_features(type_name=response["type_name"], feature="description"),
+                llm_response=model_response)
 
-        if not succeed or score < 50:
-            pass
-            # genrate from another model and get score
 
         response["validation_score"] = score
 
