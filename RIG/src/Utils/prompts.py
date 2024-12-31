@@ -1,3 +1,5 @@
+import json
+
 from RIG.globals import GLOBALS
 import pandas as pd
 
@@ -446,3 +448,248 @@ Output:
     return prompt
 
 
+def validation_prompt(free_text, response_dict):
+    prompt = f"""You are a tough test taker, you give a score on a structured response deduced from a given free text, strictly according to the following rules:
+
+    1. Award 100 points by default
+    2. Deduct points ONLY if:
+       - There is a direct contradiction between values in the response and the free text
+       - A value is present in the response that cannot be directly found in the free text (except for 'null')
+    3. If information cannot be found in the free text, 'null' is the CORRECT response
+    4. Do not interpret, analyze, or make assumptions - check only for exact matches
+    5. If the information in the free text has the word 'zero', and the extracted text has the word 'null', don't deduct points for it, that's fine
+    6. Wherever a word or sentence appears in the free text that can indicate a lack of information such as 
+    None, '', ' ', " ", "","unknown", "null","NULL", "None","no", "none ", "empty","EMPTY",0,'0', "not in use", and the like, The expectation that the extracted parameters will appear 'null' for this parameter.
+    7.Ignore the RuleInstanceName parameter if present, do not deduct a score for an error or mismatch in this parameter.
+    Free Text:
+    {free_text}
+
+    Structured Response:
+    {json.dumps(response_dict, indent=2)}
+
+    Here are examples to clarify:
+
+    Example 1:
+    Free Text:
+    An instance of eagle assessment needs to be created, dealing with the type of assessment eagle. The scavenging efficiency of the eagle was around, um, eighty. However, the beak sharpness was much more severe, let's say something like seven. The flight altitude of the eagle is high, and the severity of the event is four. The vision acuity of the eagle is excellent, with a wingspan of about two hundred. The thermal riding skill of the eagle is expert, and the bone digestion is ninety. We don't have information on the feather maintenance.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "eagle assessment",
+        "severity": "4",
+        "Scavenging efficiency": "80",
+        "Flight altitude": "high",
+        "Beak sharpness": "7",
+        "Vision acuity": "excellent",
+        "Wing span": "200",
+        "Thermal riding skill": "expert",
+        "Bone digestion": "90",
+        "Feather maintenance": "null"
+    }}
+
+    Final Score: 100
+
+    Example 2:
+    Free Text:
+    We need to generate an instance for Eagle Assessment. Our eagle is quite the scavenger, with an efficiency of about eighty. The flight altitude of this bird? High. Its beak sharpness is a solid seven. And you won't believe this, but the vision acuity is excellent! With a wingspan of, um, two hundred, and thermal riding skill of an expert, this bird is a pro. It has a bone digestion of ninety, but the feather maintenance is, well, just not available. The severity of this evaluation, let's say, is four.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "null",
+        "severity": "null",
+        "Scavenging efficiency": "80",
+        "Flight altitude": "high",
+        "Beak sharpness": "7",
+        "Vision acuity": "excellent",
+        "Wing span": "200",
+        "Thermal riding skill": "expert",
+        "Bone digestion": "90",
+        "Feather maintenance": "null"
+    }}
+
+    Final Score: 90
+
+    Example 3:
+    Free Text:
+    We need to set up an instance of Viking Axe Analysis. This is related to the weapon type Viking Axe. The blade resilience of the axe is, well, unbreakable. The guard width is pretty broad. The grip of the axe is a bit rugged. However, the tip precision is just, um, low. The blade straightness is about, let's say something like eighty-five. The severity of the axe design is seven.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "viking axe analysis",
+        "severity": "7",
+        "Blade sharpness": "null",
+        "Handle grip": "null",
+        "Weight distribution": "blade-heavy",
+        "Chopping power": "null",
+        "Throwing capability": "null",
+        "Material durability": "null",
+        "Combat effectiveness": "null",
+        "Ornamentation": "null"
+    }}
+
+    Final Score: 70
+
+    Example 4:
+    Free Text:
+    We need to analyze a new battle axe. The axe weight is unknown. The blade sharpness is zero. The handle length appears empty.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "battle axe analysis",
+        "Weight": "null",
+        "Blade sharpness": "null",
+        "Handle length": "null"
+    }}
+
+    Final Score: 100
+
+    Example 5:
+    Free Text:
+    We need to analyze a new battle axe. The axe weight is unknown. The blade sharpness is zero. The handle length appears empty.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "battle axe analysis",
+        "Weight": "0",
+        "Blade sharpness": "empty",
+        "Handle length": "none"
+    }}
+
+    Final Score: 85
+
+    Example 6:
+    Free Text:
+    A new sword was found. The blade length is 90 centimeters. The grip is leather. The weight is 2 kilos.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "sword analysis",
+        "Blade length": "90",
+        "Grip material": "leather",
+        "Weight": "2",
+        "Blade material": "steel"
+    }}
+
+    Final Score: 80
+
+    In fact, a score will be deducted for every parameter that exists and fulfills one of two things, or it contradicts what is written in the free text, or it cannot be deduced unequivocally from the text, so also a score is lowered for a parameter that can be deduced from the free text, but it appears null in this parameter.
+
+    The final score is:"""
+    return prompt
+
+
+def validation_prompt_v2(free_text, response_dict):
+    prompt = f"""
+    your job is to classify if some `structure response` is the output of `free text`. your response should be in json.
+    
+    Example 1:
+    Free Text:
+    An instance of eagle assessment needs to be created, dealing with the type of assessment eagle. The scavenging efficiency of the eagle was around, um, eighty. However, the beak sharpness was much more severe, let's say something like seven. The flight altitude of the eagle is high, and the severity of the event is four. The vision acuity of the eagle is excellent, with a wingspan of about two hundred. The thermal riding skill of the eagle is expert, and the bone digestion is ninety. We don't have information on the feather maintenance.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "eagle assessment",
+        "severity": "4",
+        "Scavenging efficiency": "80",
+        "Flight altitude": "high",
+        "Beak sharpness": "7",
+        "Vision acuity": "excellent",
+        "Wing span": "200",
+        "Thermal riding skill": "expert",
+        "Bone digestion": "90",
+        "Feather maintenance": "null"
+    }}
+
+    Output:{{'score': 1}}
+
+    Example 2:
+    Free Text:
+    We need to generate an instance for Eagle Assessment. Our eagle is quite the scavenger, with an efficiency of about eighty. The flight altitude of this bird? High. Its beak sharpness is a solid seven. And you won't believe this, but the vision acuity is excellent! With a wingspan of, um, two hundred, and thermal riding skill of an expert, this bird is a pro. It has a bone digestion of ninety, but the feather maintenance is, well, just not available. The severity of this evaluation, let's say, is four.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "null",
+        "severity": "null",
+        "Scavenging efficiency": "80",
+        "Flight altitude": "high",
+        "Beak sharpness": "7",
+        "Vision acuity": "excellent",
+        "Wing span": "200",
+        "Thermal riding skill": "expert",
+        "Bone digestion": "90",
+        "Feather maintenance": "null"
+    }}
+
+    Output:{{'score': 0}}
+
+    Example 3:
+    Free Text:
+    We need to set up an instance of Viking Axe Analysis. This is related to the weapon type Viking Axe. The blade resilience of the axe is, well, unbreakable. The guard width is pretty broad. The grip of the axe is a bit rugged. However, the tip precision is just, um, low. The blade straightness is about, let's say something like eighty-five. The severity of the axe design is seven.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "viking axe analysis",
+        "severity": "7",
+        "Blade sharpness": "null",
+        "Handle grip": "null",
+        "Weight distribution": "blade-heavy",
+        "Chopping power": "null",
+        "Throwing capability": "null",
+        "Material durability": "null",
+        "Combat effectiveness": "null",
+        "Ornamentation": "null"
+    }}
+
+    Output:{{'score': 0}}
+
+    Example 4:
+    Free Text:
+    We need to analyze a new battle axe. The axe weight is unknown. The blade sharpness is zero. The handle length appears empty.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "battle axe analysis",
+        "Weight": "null",
+        "Blade sharpness": "null",
+        "Handle length": "null"
+    }}
+
+    Output:{{'score': 1}}
+
+    Example 5:
+    Free Text:
+    We need to analyze a new battle axe. The axe weight is unknown. The blade sharpness is zero. The handle length appears empty.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "battle axe analysis",
+        "Weight": "0",
+        "Blade sharpness": "empty",
+        "Handle length": "none"
+    }}
+
+    Output:{{'score': 0}}
+
+    Example 6:
+    Free Text:
+    A new sword was found. The blade length is 90 centimeters. The grip is leather. The weight is 2 kilos.
+
+    Structured Response:
+    {{
+        "ruleInstanceName": "sword analysis",
+        "Blade length": "90",
+        "Grip material": "leather",
+        "Weight": "2",
+        "Blade material": "steel"
+    }}
+
+    Output:{{'score': 0}}
+
+    Our case:
+    Free Text:
+    {free_text}
+
+    Structured Response:
+    {json.dumps(response_dict, indent=2)}
+    Output:"""
+    return prompt

@@ -4,6 +4,7 @@ from dotenv import find_dotenv, load_dotenv
 from RIG.src.Utils.db_manager import DBManager
 import ollama
 
+
 class Globals:
 
     def __init__(self):
@@ -20,6 +21,7 @@ class Globals:
 
         self.gemma_model_name = os.getenv("GEMMA_MODEL_NAME")
         self.rag_model_name = os.getenv("RAG_MODEL_NAME")
+        self.validation_model_name = os.getenv("VALIDATION_MODEL_NAME")
 
         # db rule types manager
         self.db_manager = DBManager(os.path.join(self.project_directory, "db_data.csv"))
@@ -35,16 +37,27 @@ class Globals:
             "model": self.gemma_model_name,
             "prompt": "",  # fill every time
             "keep_alive": -1,  # the model keep load forever.
-            "options": {"temperature": self.temperature, "top_p": self.top_p, "stop": ["}"], "num_ctx": self.max_context_length, "num_predict": self.max_new_tokens}
+            "options": {"temperature": self.temperature, "top_p": self.top_p, "stop": ["}"],
+                        "num_ctx": self.max_context_length, "num_predict": self.max_new_tokens}
         }
         self.gemma_model = ollama.generate
 
-        self.rag_model_params = {"model": self.rag_model_name}   # fill input every time
+        self.rag_model_params = {"model": self.rag_model_name}  # fill input every time
         self.rag_model = ollama.embeddings
+
+        self.validation_model_params = {
+            "model": self.validation_model_name,
+            "prompt": "",  # fill every time
+            "keep_alive": -1,  # the model keep load forever.
+            "options": {"temperature": self.temperature, "top_p": self.top_p, "stop": ["}"],
+                        "num_ctx": self.max_context_length, "num_predict": 10}
+        }
+        self.validation_model = ollama.generate
 
         # try:
         #     ollama.pull(self.rag_model_name)
         #     ollama.pull(self.gemma_model_name)
+        #     ollama.pull(self.validation_model_name)
         # except:
         #     pass
 
@@ -72,5 +85,6 @@ class Models:
     def __init__(self):
         self.rag_api = None
         self.gemma_api = None
+
 
 MODELS = Models()

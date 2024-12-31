@@ -3,7 +3,7 @@ from .classification import Classification
 from .generation import Generation
 from .post_processing import post_processing
 from RIG.globals import GLOBALS
-
+from RIG.src.App.validation import Validation
 
 class Get:
     """
@@ -19,6 +19,7 @@ class Get:
         """
         self.classifier = Classification()
         self.generator = Generation()
+        self.validator = Validation()
 
     def predict(self, free_text: str, row_id: str = 'id', for_eval: bool = False) -> dict:
         """
@@ -55,7 +56,8 @@ class Get:
             "rag_score": None,
             "model_response": None,
             "examples": None,
-            "schema": None
+            "schema": None,
+            "validation_score": 0,
         }
 
         # Perform classification to predict type_name and rag_score
@@ -75,6 +77,17 @@ class Get:
 
         # Extract structured data from model response
         model_response, succeed = get_dict(response["model_response"])
+
+
+        if succeed:
+            # validate_socre
+            score: int = self.validator.get_score(free_text=free_text, llm_response=model_response)
+
+        if not succeed or score < 50:
+            pass
+            # genrate from another model and get score
+
+        response["validation_score"] = score
 
         # Handle extraction errors
         if not succeed:

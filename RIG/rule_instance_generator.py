@@ -68,7 +68,8 @@ class RuleInstanceGenerator:
             "rag_score": None,
             "model_response": None,
             "examples": None,
-            "schema": None
+            "schema": None,
+            "validation_score": None
         }
 
         # Check if input is meaningful
