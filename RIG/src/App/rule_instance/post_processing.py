@@ -50,7 +50,7 @@ def post_processing(type_name: str, model_response: dict) -> dict:
     # Update severity and rule instance name directly
     for param in default_param_out_params:
         param_clean = clean_text(param)
-        default_rule_instance[param] = model_response_clean[param_clean]
+        default_rule_instance[param] = model_response_clean.get(param_clean)
 
     return default_rule_instance
 

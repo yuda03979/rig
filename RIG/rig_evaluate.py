@@ -212,7 +212,7 @@ def evaluate_func(
     except:
         df_eval["expected_response"] = df_eval["expected_response"].apply(
         dict)  # Convert strings to dictionaries
-        print("blah")
+
     df_eval["free_text"] = df_eval["free_text"].apply(parse_free_text)  # Handle plain strings and lists
 
     # Create eval_data_generation from the DataFrame
@@ -260,6 +260,7 @@ def evaluate_func(
 
                 # Extract examples from rig_response
                 examples = rig_response.get("examples", {})
+                validation_score = rig_response.get("validation_score", -1)
 
                 # Calculate scores
                 binary_score_no_rule_instance = score_binary(expected, response)
@@ -292,6 +293,7 @@ def evaluate_func(
                 new_row = {
                     "id": row_id,
                     "binary_score": binary_score,
+                    "validation_score": validation_score,
                     "binary_score_no_rule_instance": binary_score_no_rule_instance,
                     "param_numerical_binary_score": param_numerical_binary_score,
                     "param_verbal_binary_score": param_verbal_binary_score,
