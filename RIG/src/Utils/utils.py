@@ -4,9 +4,7 @@ import json
 import os
 import csv
 from datetime import datetime
-from RIG.globals import GLOBALS,MODELS
-
-
+from RIG.globals import GLOBALS, MODELS
 
 
 def get_dict(input_string):
@@ -35,8 +33,6 @@ def get_dict(input_string):
             return input_string, False
 
 
-
-
 def fix_unbalanced_braces(response):
     """
     Fix unbalanced braces in a model response by ensuring correct matching of { and }.
@@ -55,6 +51,7 @@ def fix_unbalanced_braces(response):
         response += '}' * missing_close  # Add missing closing braces
 
     return response
+
 
 def log_interactions(response):
     # create hidde logs directory if it doesn't exist
@@ -79,8 +76,8 @@ def log_interactions(response):
             str(response)
         ])
 
-def log_question_and_answer(response):
 
+def log_question_and_answer(response):
     """
     Log a question, answer, and its embedding to the log file.
     :param question: The input question.

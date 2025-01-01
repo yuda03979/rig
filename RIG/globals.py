@@ -28,7 +28,7 @@ class Globals:
 
         # other db's
         self.db_examples_path = os.path.join(self.project_directory, "db_examples.csv")
-        self.df_eval_path = os.path.join(self.evaluation_directory, "data_eval.csv") # "filtered_output.csv")#
+        self.df_eval_path = os.path.join(self.evaluation_directory, "filtered_output.csv")  # "data_eval.csv")  #
         self.eval_output_dir = os.path.join(self.evaluation_directory, "output")
 
         # ollama
@@ -50,7 +50,7 @@ class Globals:
             "prompt": "",  # fill every time
             "keep_alive": -1,  # the model keep load forever.
             "options": {"temperature": self.temperature, "top_p": self.top_p, "stop": ["}"],
-                        "num_ctx": 2048, "num_predict": 100}
+                        "num_ctx": 3500, "num_predict": 100}
         }
         self.validation_model = ollama.generate
 

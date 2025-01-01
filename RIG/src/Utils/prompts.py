@@ -3,9 +3,11 @@ import json
 from RIG.globals import GLOBALS
 import pandas as pd
 
+
 def clean_text(text):
     """Remove all non-alphanumeric characters and convert to lowercase."""
     return ''.join(char.lower() for char in text if char.isalnum())
+
 
 def prompt_json_gemma_v1(free_text, type_name, schema, description):
     prompt = f"""
@@ -314,7 +316,6 @@ def prompt_json_gemma_v4(free_text, type_name, schema, description):
     return prompt
 
 
-
 def prompt_json_gemma_v5(free_text, type_name, schema, description, examples=None):
     example_3 = f"""
 ### Example 3 (Example for handling empty values):
@@ -343,7 +344,8 @@ Output:
     "severity": "null"
 }}
 """
-    if not examples["example_1"]["free_text"] or not examples["example_2"]["free_text"]:
+
+    if not examples:  # examples["example_1"]["free_text"] or not examples["example_2"]["free_text"]:
         examples = f"""
 
 ### Example 1 :
@@ -680,64 +682,13 @@ def validation_prompt_v2(free_text, response_dict):
 
 def validation_prompt_v3(free_text, description, response_dict):
     prompt = f"""
-    Generate a response in this format: {{'score': int}}, where int is 1 for yes, 0 for no. Default is 0.  
-    Task: Determine if the free text: "{free_text}" aligns with the schema: {response_dict}.  
-    Field Descriptions: {description}  
+    Generate a response in this format: {{'score': int}}, where instead of int its 0 for yes or 1 for no. Default is 0.  
+    Task: Determine if the free text: "{free_text}" not aligns with the schema: {response_dict}.  
+    Field Descriptions for helping you to understand the schema: {description}
 
     **Evaluation Criteria:**  
-    - Do the fields in the schema correspond to topics in the free text?  
-    - Are the values (not null) from the schema present in the free text?  
-
-    ----------------------------------  
-    **Example (score: 0):**  
-    **Schema:**  
-    {{
-        "ruleInstanceName": "kangaroo activity monitoring",
-        "severity": "3",
-        "Jump distance": "null",
-        "Pouch capacity": "null",
-        "Herd dynamics": "null",
-        "Diet selectivity": "null",
-        "Defense behavior": "null",
-        "Speed on land": "null",
-        "Water retention": "null"
-    }}  
-    **Free Text:**  
-    An instance of Kangaroo Activity Monitoring needs to be created, dealing with the sharpness of the horn which is average. The muscle mass of the kangaroo is ninety. However, the kangaroo's aggressiveness is low. The diet is omnivorous, and breeding behavior is polygynous. Territorial defense is weak, and the severity of the event is three.  
-
-    **Problem:**  
-    The following fields are missing from the free text:  
-    - Jump distance  
-    - Pouch capacity  
-    - Herd dynamics  
-    - Diet selectivity  
-    - Defense behavior  
-    - Speed on land  
-    - Water retention  
-
-    **Response:** {{'score': 0}}  
-    ----------------------------------  
-    **Example (score: 1):**  
-    **Schema:**  
-    {{
-        "ruleInstanceName": "elephant population analysis",
-        "severity": "4",
-        "Horn sharpness": "null",
-        "Muscle mass": "5000",
-        "Aggressiveness": "medium",
-        "Diet needs": "herbivorous",
-        "Breeding behavior": "polygynous",
-        "Territorial defense": "average",
-        "Endurance": "7"
-    }}  
-    **Free Text:**  
-    We need to initiate an instance, let's call it elephant population analysis, with severity set to four. Horn sharpness is null. The muscle mass is around five thousand. The creature's aggressiveness is medium, and its diet needs are herbivorous. It follows polygynous breeding behavior, has average territorial defense, and endurance level is seven.  
-
-    **Response:** {{'score': 1}}  
-    ----------------------------------  
-
-    Now, evaluate this case:  
-    Does the free text: "{free_text}" align with the schema: {response_dict}?  
+    - Do the fields in the schema not correspond to topics in the free text?  
+    - Are the values (not null) from the schema not present in the free text? 
 
     Response:  
     """
@@ -867,4 +818,57 @@ def validation_prompt_v4(free_text, description, response_dict):
     {response_dict}?  
 
     **:Response:** """
+    return prompt
+
+
+def validation_prompt_v5(free_text, type_name, schema, description, model_response, eval):
+
+    old_prompt = analyze_prompt_v5(free_text, type_name, schema, description, model_response) + eval
+
+    prompt = f"""
+    {old_prompt}
+    now generate again according the schema:
+    Output:
+    """
+    return prompt
+
+
+def analyze_prompt_v5(free_text, type_name, schema, description, model_response):
+    old_prompt = prompt_json_gemma_v5(free_text, type_name, schema, description, examples=None)
+
+    prompt = f"""
+    step 1: {old_prompt} {model_response}.
+    ------ FINISH!!! ------
+
+    step 2: 
+    Task: explain why you generate this schema and if its good.  
+
+    **Evaluation Criteria:**  
+    - Do the fields in the schema not correspond to topics in the free text?  
+    - Are the values (not null) from the schema not present in the free text? 
+
+    Example:
+    Free Text:
+    An instance of eagle assessment needs to be created, dealing with the type of assessment eagle. The scavenging efficiency of the eagle was around, um, eighty. However, the beak sharpness was much more severe, let's say something like seven. The flight altitude of the eagle is very high, and the severity of the event is four. The vision acuity of the eagle is excellent, with a wingspan of about two hundred. The thermal riding skill of the eagle is expert, and the bone digestion is ninety. We don't have information on the feather maintenance.
+
+    output:
+    {{
+        "ruleInstanceName": "eagle assessment",
+        "severity": "4",
+        "Scavenging efficiency": "80",
+        "Flight altitude": "high",
+        "Beak sharpness": "7",
+        "Vision acuity": "excellent",
+        "Wing span": "200",
+        "Thermal riding skill": "expert",
+        "Bone digestion": "90",
+        "Feather maintenance": "null"
+    }}
+
+    explanation: flight altitude should be "very high". so i did it wrong. all the other fields are good!
+
+    free text: {free_text}
+
+    output: {model_response}
+    short explanation: """
     return prompt

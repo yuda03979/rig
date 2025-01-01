@@ -5,6 +5,7 @@ from .post_processing import post_processing
 from RIG.globals import GLOBALS
 from RIG.src.App.validation import Validation
 
+
 class Get:
     """
     Get class orchestrates the classification and generation processes
@@ -76,18 +77,16 @@ class Get:
         )
 
         # Extract structured data from model response
+
+        # validate_score
+        response["model_response"] = self.validator.generate(
+            free_text=free_text,
+            type_name=response["type_name"],
+            schema=response["schema"],
+            description=GLOBALS.db_manager.get_dict_features(type_name=response["type_name"], feature="description"),
+            llm_response=response["model_response"])
+
         model_response, succeed = get_dict(response["model_response"])
-
-
-        if succeed:
-            # validate_socre
-            score: int = self.validator.get_score(
-                free_text=free_text,
-                description=GLOBALS.db_manager.get_dict_features(type_name=response["type_name"], feature="description"),
-                llm_response=model_response)
-
-
-        response["validation_score"] = score
 
         # Handle extraction errors
         if not succeed:

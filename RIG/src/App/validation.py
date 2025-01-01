@@ -4,7 +4,7 @@ from RIG.src.Utils.utils import get_dict
 import pandas as pd
 import re
 import time
-from RIG.src.Utils.prompts import validation_prompt_v2, validation_prompt_v3, validation_prompt_v4
+from RIG.src.Utils.prompts import validation_prompt_v2, validation_prompt_v3, validation_prompt_v4, validation_prompt_v5, analyze_prompt_v5
 from RIG.globals import GLOBALS
 
 
@@ -12,12 +12,11 @@ class Validation:
     def __init__(self):
         pass
 
-    def get_score(self, free_text: str, description, llm_response: dict):
+    def get_score(self, free_text: str, type_name: str, schema, description, llm_response: dict):
         """
         model should generate score between 0 - 1
         """
-        prompt = validation_prompt_v4(free_text, description, str(llm_response))
-
+        prompt = validation_prompt_v5(free_text, type_name, schema, description, str(llm_response))
         model_params = GLOBALS.validation_model_params
         model_params["prompt"] = prompt
         output_text = GLOBALS.validation_model(**model_params)['response']
@@ -57,3 +56,25 @@ class Validation:
             print(elapsed_time)
 
         results_df.to_csv('evaluation_results_with_local.csv', index=False)
+
+
+    def analyze(self, free_text: str, type_name: str, schema, description, llm_response: dict):
+        prompt = analyze_prompt_v5(free_text, type_name, schema, description, str(llm_response))
+        model_params = GLOBALS.validation_model_params
+        model_params["prompt"] = prompt
+        output_text = GLOBALS.validation_model(**model_params)['response']
+        return output_text
+
+    def generate(self, free_text: str, type_name: str, schema, description, llm_response: dict):
+        """
+        model should generate score between 0 - 1
+        """
+        prompt = validation_prompt_v5(free_text, type_name, schema, description, str(llm_response), eval=str(self.analyze(free_text, type_name, schema, description, llm_response)))
+        print(prompt)
+        model_params = GLOBALS.validation_model_params
+        model_params["prompt"] = prompt
+        output_text = GLOBALS.validation_model(**model_params)['response']
+        return output_text + "}"
+
+
+
